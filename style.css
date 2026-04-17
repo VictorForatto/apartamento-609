@@ -74,16 +74,27 @@ footer {
   justify-content: space-between;
 }
 
+
 .reserve-btn {
+  width: 100%;
+  height: 44px;              /* altura fixa evita desalinhamento */
   margin-top: 15px;
-  padding: 10px;
-  border: none;
-  border-radius: 6px;
+
   background: #4f46e5;
-  color: white;
-  font-size: 14px;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
+
+  display: flex;             /* 👇 isso resolve o problema */
+  align-items: center;       /* centraliza verticalmente */
+  justify-content: center;   /* centraliza horizontalmente */
 }
+
+
 
 .reserve-btn:hover {
   background: #4338ca;
