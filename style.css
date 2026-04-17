@@ -73,3 +73,18 @@ footer {
   flex-direction: column;
   justify-content: space-between;
 }
+
+.reserve-btn {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: #4f46e5;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.reserve-btn:hover {
+  background: #4338ca;
+}
