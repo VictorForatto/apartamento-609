@@ -1,90 +1,131 @@
 const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5b3BudGRxbG12aXZsY2Zzdm9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Mjc2MTYsImV4cCI6MjA5MjAwMzYxNn0.HuSBNc9X-G1K2ZUqJz71Gd8JzFS50fUFrqu8OmvYTC4";
 
-async function carregarPresentes() {
-  const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/gifts?select=*&order=price_order.asc.nullslast`,
-    {
-      headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`
-      }
-    }
-  );
-
-  const presentes = await response.json();
-  const lista = document.getElementById("lista-presentes");
-
-  lista.innerHTML = "";
-
-  presentes.forEach(presente => {
-    const div = document.createElement("div");
-    div.className = "gift";
-
-    const isDisponivel = presente.status === "disponivel";
-    div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
-
-    div.innerHTML = `
-      <div class="gift-top">
-        <h4 class="gift-name">${presente.name}</h4>
-        ${
-          presente.price_range
-            ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
-            : ""
-        }
-      </div>
-  
-      ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
-    
-      <p class="gift-status">
-        <strong>Status:</strong>
-        ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
-      </p>
-
-      ${!isDisponivel ? `<p class="gift-note">Obrigado! Este item já foi reservado 🤍</p>` : ""}
-    
-      ${
-        presente.status === "disponivel"
-          ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name.replace(/'/g, "\\'")}')">
-               Quero presentear
-             </button>`
-          : ""
-      }
-    `;
-
-    lista.appendChild(div);
-  });
-}
-
-carregarPresentes();
+const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
+const SUPABASE_KEY = "COLE_SUA_ANON_PUBLIC_KEY_AQUI";
 
 let giftSelecionado = null;
 
+// ---------- UTIL ----------
+function escapeApostrophe(str = "") {
+  return str.replace(/'/g, "\\'");
+}
+
+// Helper para parsear retorno do RPC (às vezes vem string, às vezes objeto)
+async function parseRpcReturn(resp) {
+  const data = await resp.json();
+  if (typeof data === "string") return data;
+  if (data && typeof data === "object") {
+    if (data.id) return data.id;
+    const firstKey = Object.keys(data)[0];
+    if (firstKey) return data[firstKey];
+  }
+  return null;
+}
+
+// ---------- LISTA PRESENTES ----------
+async function carregarPresentes() {
+  const lista = document.getElementById("lista-presentes");
+  if (!lista) return;
+
+  lista.innerHTML = `<p style="color:#666;">Carregando presentes...</p>`;
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/gifts?select=*&order=price_order.asc.nullslast`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      lista.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar lista: ${err}</p>`;
+      return;
+    }
+
+    const presentes = await response.json();
+    lista.innerHTML = "";
+
+    presentes.forEach((presente) => {
+      const isDisponivel = presente.status === "disponivel";
+
+      const div = document.createElement("div");
+      div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
+
+      div.innerHTML = `
+        <div class="gift-top">
+          <h4 class="gift-name">${presente.name}</h4>
+          ${
+            presente.price_range
+              ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
+              : ""
+          }
+        </div>
+
+        ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
+
+        <p class="gift-status">
+          <strong>Status:</strong>
+          ${isDisponivel ? "✅ Disponível" : "🔒 Reservado"}
+        </p>
+
+        ${
+          !isDisponivel
+            ? `<p class="gift-note">Obrigado! Este item já foi reservado 🤍</p>`
+            : ""
+        }
+
+        ${
+          isDisponivel
+            ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
+                 Quero presentear
+               </button>`
+            : ""
+        }
+      `;
+
+      lista.appendChild(div);
+    });
+  } catch (e) {
+    console.error(e);
+    lista.innerHTML = `<p style="color:#b91c1c;">Falha ao carregar lista (ver Console).</p>`;
+  }
+}
+
+// ---------- MODAL ----------
 function abrirFormulario(id, nome) {
   giftSelecionado = id;
-  document.getElementById("modal-title").innerText =
-    `Você vai presentear: ${nome}`;
-  document.getElementById("modal-overlay").style.display = "flex";
+  const title = document.getElementById("modal-title");
+  if (title) title.innerText = `Você vai presentear: ${nome}`;
+
+  const overlay = document.getElementById("modal-overlay");
+  if (overlay) overlay.style.display = "flex";
 }
 
 function fecharModal() {
-  document.getElementById("modal-overlay").style.display = "none";
+  const overlay = document.getElementById("modal-overlay");
+  if (overlay) overlay.style.display = "none";
 }
 
-async function confirmarReserva() {
+// expõe para o onclick funcionar
+window.abrirFormulario = abrirFormulario;
+window.fecharModal = fecharModal;
 
-  const nome = document.getElementById("nome").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const mensagem = document.getElementById("mensagem").value.trim(
+// ---------- CONFIRMAR RESERVA ----------
+async function confirmarReserva() {
+  const nome = (document.getElementById("nome")?.value || "").trim();
+  const email = (document.getElementById("email")?.value || "").trim();
+  const mensagem = (document.getElementById("mensagem")?.value || "").trim();
 
   if (!giftSelecionado) return alert("Nenhum presente selecionado.");
-  if (nome.length < 2) return alert("Informe seu nome.");
-  if (!email.includes("@")) return alert("Informe um e-mail válido.
-
+  if (nome.length < 2) return alert("Por favor, informe seu nome.");
+  if (!email.includes("@")) return alert("Por favor, informe um e-mail válido.");
 
   try {
-
-    // 1) Reserva no banco
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
       method: "POST",
       headers: {
@@ -99,53 +140,53 @@ async function confirmarReserva() {
         p_message: mensagem || null
       })
     });
-  
-    // depois do RPC reserve_gift:
+
     if (!resp.ok) {
       const errText = await resp.text();
-      alert("Não foi possível reservar.\n\n" + errText);
+      alert("Não foi possível reservar. Talvez alguém já tenha reservado este item.\n\n" + errText);
       return;
     }
-    
-    // ⚠️ pega o retorno do RPC com segurança
-    const reservationJson = await resp.json();
-    const reservationId = (typeof reservationJson === "string")
-      ? reservationJson
-      : (reservationJson?.id || reservationJson?.reserve_gift || null);
-    
-    // atualiza UI primeiro (não depende do e-mail)
-    fecharModal();
-    alert("Reserva registrada! 💙 Obrigado pelo carinho!");
-    carregarPresentes();
-    
-    // tenta enviar e-mail sem travar o site
-    try {
-      await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`
-        },
-        body: JSON.stringify({ reservation_id: reservationId })
-      });
-    } catch (e) {
-      console.warn("Falha ao disparar e-mail (não bloqueia a reserva):", e);
-    }
 
+    const reservationId = await parseRpcReturn(resp);
 
-    // Sucesso
+    // atualiza UI imediatamente
     fecharModal();
     document.getElementById("nome").value = "";
     document.getElementById("email").value = "";
     document.getElementById("mensagem").value = "";
 
     alert("Reserva registrada! 💙 Obrigado pelo carinho!");
-    carregarPresentes(); // recarrega lista e some botão
+    carregarPresentes();
+
+    // ✅ por enquanto, NÃO deixa e-mail quebrar nada
+    // Só tentamos disparar se reservationId existir
+    if (reservationId) {
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify({ reservation_id: reservationId })
+        });
+      } catch (e) {
+        console.warn("Falha ao disparar e-mail (não bloqueia a reserva):", e);
+      }
+    }
 
   } catch (e) {
-    alert("Erro ao reservar. Tente novamente em instantes.");
     console.error(e);
+    alert("Erro ao reservar. Tente novamente em instantes.");
   }
 }
+
+window.confirmarReserva = confirmarReserva;
+
+// ---------- START ----------
+document.addEventListener("DOMContentLoaded", () => {
+  carregarPresentes();
+});
+
 
