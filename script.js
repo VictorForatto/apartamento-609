@@ -22,13 +22,16 @@ async function carregarPresentes() {
     div.className = "gift";
 
   div.innerHTML = `
-    <h4 class="gift-name">${presente.name}</h4>
+    <div class="gift-top">
+      <h4 class="gift-name">${presente.name}</h4>
+      ${
+        presente.price_range
+          ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
+          : ""
+      }
+    </div>
   
-    <p class="gift-description">
-      ${presente.description}
-    </p>
-
-    <p class="gift-price">💰 ${presente.price_range}</p>
+    ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
   
     <p class="gift-status">
       <strong>Status:</strong>
@@ -37,7 +40,7 @@ async function carregarPresentes() {
   
     ${
       presente.status === "disponivel"
-        ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name}')">
+        ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name.replace(/'/g, "\\'")}')">
              Quero presentear
            </button>`
         : ""
