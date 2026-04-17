@@ -249,13 +249,11 @@ footer {
 
 
 .hero img {
-  max-width: 260px;        /* controla tamanho sem forçar */
-  width: 100%;
-  height: auto;            /* preserva proporção */
-  border-radius: 18px;     /* cantos suaves, sofisticados */
-  margin-bottom: 24px;
+  width: 200px;
+  height: auto;            /* remove distorção */
+  border-radius: 50%;      /* circular */
+  margin-bottom: 20px;
   border: 3px solid #e5e7eb;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 
