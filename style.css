@@ -172,8 +172,54 @@ footer {
   cursor: pointer;
 }
 
-.gift-price {
+/* Compacta os textos dentro do card */
+.gift p {
+  margin: 6px 0;           /* reduz o "pulo" */
+  line-height: 1.35;
+}
+
+/* Topo do card: título + faixa de preço */
+.gift-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.gift-name {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* Badge (pill) da faixa de preço */
+.gift-price-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+
+  font-size: 12px;         /* menor (não gigante) */
+  color: #1f2937;
+  background: #eef2ff;
+  border: 1px solid #e0e7ff;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.gift-price-label {
+  font-weight: 600;
+  color: #3730a3;
+}
+
+/* Descrição mais suave */
+.gift-description {
+  margin: 6px 0 8px;
+  color: #555;
+}
+
+/* Status sem espaço exagerado */
+.gift-status {
+  margin: 8px 0 0;
   font-size: 14px;
-  color: #444;
-  margin: 6px 0 10px;
 }
