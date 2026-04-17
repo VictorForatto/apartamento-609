@@ -100,16 +100,26 @@ async function confirmarReserva() {
       })
     });
   
+    // depois do RPC reserve_gift:
     if (!resp.ok) {
       const errText = await resp.text();
-      alert("Não foi possível reservar. Talvez alguém já tenha reservado este item.\n\n" + errText);
+      alert("Não foi possível reservar.\n\n" + errText);
       return;
     }
-
     
-    const reservationId = await resp.json(); // <-- uuid retornado
+    // ⚠️ pega o retorno do RPC com segurança
+    const reservationJson = await resp.json();
+    const reservationId = (typeof reservationJson === "string")
+      ? reservationJson
+      : (reservationJson?.id || reservationJson?.reserve_gift || null);
     
-      // 2) Chama Edge Function para enviar e-mail (vamos criar já já)
+    // atualiza UI primeiro (não depende do e-mail)
+    fecharModal();
+    alert("Reserva registrada! 💙 Obrigado pelo carinho!");
+    carregarPresentes();
+    
+    // tenta enviar e-mail sem travar o site
+    try {
       await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
         method: "POST",
         headers: {
@@ -119,6 +129,9 @@ async function confirmarReserva() {
         },
         body: JSON.stringify({ reservation_id: reservationId })
       });
+    } catch (e) {
+      console.warn("Falha ao disparar e-mail (não bloqueia a reserva):", e);
+    }
 
 
     // Sucesso
