@@ -21,13 +21,18 @@ async function carregarPresentes() {
     const div = document.createElement("div");
     div.className = "gift";
 
-    div.innerHTML = `
-      <h4>${presente.name}</h4>
-      <p>${presente.description || ""}</p>
-      <p class="status">
-        ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
-      </p>
-    `;
+  div.innerHTML = `
+    <h4 class="gift-name">${presente.name}</h4>
+  
+    <p class="gift-description">
+      ${presente.description || ""}
+    </p>
+  
+    <p class="gift-status">
+      <strong>Status:</strong>
+      ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
+    </p>
+  `;
 
     lista.appendChild(div);
   });
