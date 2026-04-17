@@ -149,7 +149,7 @@ footer {
 
 .confirm-btn {
   flex: 1;
-  background: #4f46e5;
+  background: #44875f;
   color: white;
   border: none;
   border-radius: 6px;
@@ -158,7 +158,7 @@ footer {
 }
 
 .confirm-btn:hover {
-  background: #4338ca;
+  background: #1f3d2b;
 }
 
 .cancel-btn {
