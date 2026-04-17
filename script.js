@@ -3,7 +3,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 async function carregarPresentes() {
   const response = await fetch(
-    `${SUPABASE_URL}/rest/v1/gifts?select=*`,
+    `${SUPABASE_URL}/rest/v1/gifts?select=*&order=price_order.asc`,
     {
       headers: {
         apikey: SUPABASE_KEY,
@@ -27,6 +27,8 @@ async function carregarPresentes() {
     <p class="gift-description">
       ${presente.description || ""}
     </p>
+
+    <p class="gift-price">💰 ${presente.price_range}</p>
   
     <p class="gift-status">
       <strong>Status:</strong>
