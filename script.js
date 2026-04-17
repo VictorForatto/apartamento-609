@@ -79,7 +79,7 @@ async function carregarPresentes() {
         ${
           isDisponivel
             ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
-                 Quero presentear
+                 Selecionar presente
                </button>`
             : ""
         }
@@ -97,7 +97,7 @@ async function carregarPresentes() {
 function abrirFormulario(id, nome) {
   giftSelecionado = id;
   const title = document.getElementById("modal-title");
-  if (title) title.innerText = `Você vai presentear: ${nome}`;
+  if (title) title.innerText = `Você irá nos presentear com um(a): ${nome}`;
 
   const overlay = document.getElementById("modal-overlay");
   if (overlay) overlay.style.display = "flex";
@@ -152,7 +152,7 @@ async function confirmarReserva() {
     document.getElementById("email").value = "";
     document.getElementById("mensagem").value = "";
 
-    alert("Reserva registrada! 💙 Obrigado pelo carinho!");
+    alert("Reserva registrada! 💚 Obrigado pelo carinho!");
     carregarPresentes();
 
     // ✅ por enquanto, NÃO deixa e-mail quebrar nada
