@@ -47,3 +47,16 @@ async function carregarPresentes() {
 }
 
 carregarPresentes();
+
+let giftSelecionado = null;
+
+function abrirFormulario(id, nome) {
+  giftSelecionado = id;
+  document.getElementById("modal-title").innerText =
+    `Você vai presentear: ${nome}`;
+  document.getElementById("modal").style.display = "block";
+}
+
+function fecharModal() {
+  document.getElementById("modal").style.display = "none";
+}
