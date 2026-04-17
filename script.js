@@ -1,9 +1,6 @@
 const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5b3BudGRxbG12aXZsY2Zzdm9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Mjc2MTYsImV4cCI6MjA5MjAwMzYxNn0.HuSBNc9X-G1K2ZUqJz71Gd8JzFS50fUFrqu8OmvYTC4";
 
-const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
-const SUPABASE_KEY = "COLE_SUA_ANON_PUBLIC_KEY_AQUI";
-
 let giftSelecionado = null;
 
 // ---------- UTIL ----------
