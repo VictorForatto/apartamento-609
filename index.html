@@ -7,21 +7,20 @@
 </head>
 
   <script src="script.js"></script>
-
-  
-  <div id="modal" style="display:none;">
-    <div class="modal-content">
+  <div id="modal" class="modal-overlay">
+    <div class="modal">
       <h3 id="modal-title"></h3>
   
       <input id="nome" placeholder="Seu nome" />
-      <input id="email" placeholder="Seu email" />
+      <input id="email" placeholder="Seu e-mail" />
       <textarea id="mensagem" placeholder="Mensagem (opcional)"></textarea>
   
-      <button onclick="confirmarReserva()">Confirmar</button>
-      <button onclick="fecharModal()">Cancelar</button>
+      <div class="modal-actions">
+        <button class="confirm-btn" onclick="confirmarReserva()">Confirmar</button>
+        <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
+      </div>
     </div>
   </div>
-
 <body>
 
   <div class="container">
