@@ -32,6 +32,14 @@ async function carregarPresentes() {
       <strong>Status:</strong>
       ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
     </p>
+  
+    ${
+      presente.status === "disponivel"
+        ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name}')">
+             Quero presentear
+           </button>`
+        : ""
+    }
   `;
 
     lista.appendChild(div);
