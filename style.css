@@ -42,4 +42,30 @@ footer {
   color: #777;
   font-size: 14px;
 }
-``
+
+#lista-presentes {
+  margin-top: 30px;
+}
+
+.gift {
+  background: #fafafa;
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.gift-name {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.gift-description {
+  margin: 0 0 12px 0;
+  color: #555;
+}
+
+.gift-status {
+  margin: 0;
+  font-size: 14px;
+}
