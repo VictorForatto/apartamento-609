@@ -72,26 +72,19 @@ function fecharModal() {
 }
 
 async function confirmarReserva() {
+
   const nome = document.getElementById("nome").value.trim();
   const email = document.getElementById("email").value.trim();
-  const mensagem = document.getElementById("mensagem").value.trim();
+  const mensagem = document.getElementById("mensagem").value.trim(
 
-  if (!giftSelecionado) {
-    alert("Nenhum presente selecionado.");
-    return;
-  }
+  if (!giftSelecionado) return alert("Nenhum presente selecionado.");
+  if (nome.length < 2) return alert("Informe seu nome.");
+  if (!email.includes("@")) return alert("Informe um e-mail válido.
 
-  if (nome.length < 2) {
-    alert("Por favor, informe seu nome.");
-    return;
-  }
-
-  if (!email.includes("@")) {
-    alert("Por favor, informe um e-mail válido.");
-    return;
-  }
 
   try {
+
+    // 1) Reserva no banco
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
       method: "POST",
       headers: {
@@ -106,13 +99,27 @@ async function confirmarReserva() {
         p_message: mensagem || null
       })
     });
-
+  
     if (!resp.ok) {
       const errText = await resp.text();
-      // Erro clássico quando já reservaram antes: unique index / exception
       alert("Não foi possível reservar. Talvez alguém já tenha reservado este item.\n\n" + errText);
       return;
     }
+
+    
+    const reservationId = await resp.json(); // <-- uuid retornado
+    
+      // 2) Chama Edge Function para enviar e-mail (vamos criar já já)
+      await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        },
+        body: JSON.stringify({ reservation_id: reservationId })
+      });
+
 
     // Sucesso
     fecharModal();
