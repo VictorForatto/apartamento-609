@@ -66,3 +66,61 @@ function fecharModal() {
   document.getElementById("modal-overlay").style.display = "none";
 }
 
+async function confirmarReserva() {
+  const nome = document.getElementById("nome").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const mensagem = document.getElementById("mensagem").value.trim();
+
+  if (!giftSelecionado) {
+    alert("Nenhum presente selecionado.");
+    return;
+  }
+
+  if (nome.length < 2) {
+    alert("Por favor, informe seu nome.");
+    return;
+  }
+
+  if (!email.includes("@")) {
+    alert("Por favor, informe um e-mail válido.");
+    return;
+  }
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        p_gift_id: giftSelecionado,
+        p_name: nome,
+        p_email: email,
+        p_message: mensagem || null
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      // Erro clássico quando já reservaram antes: unique index / exception
+      alert("Não foi possível reservar. Talvez alguém já tenha reservado este item.\n\n" + errText);
+      return;
+    }
+
+    // Sucesso
+    fecharModal();
+    document.getElementById("nome").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("mensagem").value = "";
+
+    alert("Reserva registrada! 💙 Obrigado pelo carinho!");
+    carregarPresentes(); // recarrega lista e some botão
+
+  } catch (e) {
+    alert("Erro ao reservar. Tente novamente em instantes.");
+    console.error(e);
+  }
+}
+
