@@ -223,3 +223,15 @@ footer {
   margin: 8px 0 0;
   font-size: 14px;
 }
+
+.gift--reserved {
+  opacity: 0.7;
+  background: #f3f4f6;
+}
+
+.gift-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+  font-style: italic;
+}
