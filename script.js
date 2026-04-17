@@ -54,9 +54,10 @@ function abrirFormulario(id, nome) {
   giftSelecionado = id;
   document.getElementById("modal-title").innerText =
     `Você vai presentear: ${nome}`;
-  document.getElementById("modal").style.display = "block";
+  document.getElementById("modal-overlay").style.display = "flex";
 }
 
 function fecharModal() {
-  document.getElementById("modal").style.display = "none";
+  document.getElementById("modal-overlay").style.display = "none";
 }
+
