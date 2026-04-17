@@ -170,6 +170,13 @@ footer {
   cursor: pointer;
 }
 
+.gifts-title {
+  margin-top: 60px;
+  margin-bottom: 20px;
+  color: #1f3d2b;
+  text-align: center;
+}
+
 /* Compacta os textos dentro do card */
 .gift p {
   margin: 6px 0;           /* reduz o "pulo" */
@@ -222,17 +229,18 @@ footer {
   font-size: 14px;
 }
 
+
 .gift--reserved {
-  opacity: 0.7;
-  background: #f3f4f6;
+  opacity: 0.75;
+  background: #f1f3f1;
 }
 
 .gift-note {
-  margin: 8px 0 0;
   font-size: 13px;
-  color: #6b7280;
   font-style: italic;
+  color: #6b7280;
 }
+
 
 .hero {
   text-align: center;
