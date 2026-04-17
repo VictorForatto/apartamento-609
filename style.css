@@ -1,0 +1,45 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f5f6f8;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 40px 30px;
+}
+
+h1, h2, h3 {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 5px;
+}
+
+h2 {
+  margin-top: 0;
+  font-weight: normal;
+  color: #666;
+}
+
+p {
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.gifts-title {
+  margin-top: 50px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 60px;
+  color: #777;
+  font-size: 14px;
+}
+``
