@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  background-color: #f7f6f3; /* off-white */
+  background-color: #f7f6f3;
   color: #1f2937;
 }
 
@@ -77,7 +77,7 @@ footer {
   height: 46px;
   margin-top: 16px;
 
-  background: #1f3d2b; /* verde escuro */
+  background: #1f3d2b;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -113,12 +113,12 @@ footer {
 
 .modal-content {
   background: #ffffff;
-  padding: 28px;                 /* padding uniforme */
+  padding: 28px;
   border-radius: 14px;
   width: 100%;
   max-width: 420px;
 
-  box-sizing: border-box;        /* 🔑 ISSO resolve o desalinhamento */
+  box-sizing: border-box;
 
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
@@ -215,13 +215,11 @@ footer {
   text-align: center;
 }
 
-/* Compacta os textos dentro do card */
 .gift p {
-  margin: 6px 0;           /* reduz o "pulo" */
+  margin: 6px 0;
   line-height: 1.35;
 }
 
-/* Topo do card: título + faixa de preço */
 .gift-top {
   display: flex;
   align-items: flex-start;
@@ -235,14 +233,13 @@ footer {
   font-size: 18px;
 }
 
-/* Badge (pill) da faixa de preço */
 .gift-price-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
 
-  font-size: 12px;         /* menor (não gigante) */
+  font-size: 12px;
   background: #eef2eb;
   border: 1px solid #dbe4d8;
   color: #1f3d2b;
@@ -255,13 +252,11 @@ footer {
   color: #3730a3;
 }
 
-/* Descrição mais suave */
 .gift-description {
   margin: 6px 0 8px;
   color: #555;
 }
 
-/* Status sem espaço exagerado */
 .gift-status {
   margin: 8px 0 0;
   font-size: 14px;
@@ -288,8 +283,8 @@ footer {
 
 .hero img {
   width: 200px;
-  height: auto;            /* remove distorção */
-  border-radius: 50%;      /* circular */
+  height: auto;
+  border-radius: 50%;
   margin-bottom: 20px;
   border: 3px solid #e5e7eb;
 }
@@ -298,7 +293,7 @@ footer {
 .hero h1 {
   margin: 0;
   font-size: 28px;
-  color: #1f3d2b; /* verde escuro */
+  color: #1f3d2b;
 }
 
 .subtitle {
