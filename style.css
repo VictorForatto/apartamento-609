@@ -5,73 +5,58 @@ body {
   background-color: #f7f6f3;
   color: #1f2937;
 }
-
 .container {
   max-width: 900px;
   margin: 40px auto;
   padding: 40px 30px;
 }
-
 h1, h2, h3 {
   text-align: center;
 }
-
 h1 {
   margin-bottom: 5px;
 }
-
 h2 {
   margin-top: 0;
   font-weight: normal;
   color: #666;
 }
-
 p {
   line-height: 1.6;
   margin-bottom: 18px;
 }
-
 .gifts-title {
   margin-top: 50px;
 }
-
 footer {
   text-align: center;
   margin-top: 60px;
   color: #777;
   font-size: 14px;
 }
-
 .gift-name {
   margin: 0 0 8px 0;
   font-size: 18px;
 }
-
 .gift-description {
   margin: 0 0 12px 0;
   color: #555;
 }
-
 .gift-status {
   margin: 0;
   font-size: 14px;
 }
-
 #lista-presentes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
   margin-top: 24px;
 }
-
-
-
 .gift {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   padding: 22px;
-
   display: flex;
   flex-direction: column;
   overflow: visible; /* 🔑 nunca corta conteúdo */
@@ -80,26 +65,20 @@ footer {
   width: 100%;
   height: 46px;
   margin-top: 16px;
-
   background: #1f3d2b;
   color: #ffffff;
   border: none;
   border-radius: 10px;
-
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .reserve-btn:hover {
   background: #2f5d42;
 }
-
-/* Overlay escuro */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -112,37 +91,26 @@ footer {
   justify-content: center;
   z-index: 999;
 }
-
-/* Caixa do modal */
-
 .modal-content {
   background: #ffffff;
   padding: 28px;
   border-radius: 14px;
   width: 100%;
   max-width: 420px;
-
   box-sizing: border-box;
-
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
-
-
 .modal-content *,
 .modal-content *::before,
 .modal-content *::after {
   box-sizing: border-box;
 }
-
-
 .modal-content h3 {
   margin-top: 0;
   margin-bottom: 16px;
   text-align: center;
   position: relative;
 }
-
-
 .modal-content h3::after {
   content: "";
   display: block;
@@ -151,79 +119,58 @@ footer {
   background: #1f3d2b;
   margin: 10px auto 0;
 }
-
-
-/* Inputs */
-
 .modal-content input,
 .modal-content textarea {
   width: 100%;
   padding: 12px 14px;
   margin-bottom: 14px;
-
   border-radius: 8px;
   border: 1px solid #d1d5db;
-
   font-size: 14px;
   font-family: inherit;
-
   background: #ffffff;
 }
 .modal-content textarea {
   resize: vertical;
   min-height: 80px;
 }
-
-/* Botões */
-
 .modal-actions {
   display: flex;
   gap: 12px;
   margin-top: 10px;
 }
-
-
 .confirm-btn {
   flex: 1;
   height: 42px;
-
   background: #1f3d2b;
   color: white;
   border: none;
   border-radius: 8px;
-
   font-size: 14px;
   cursor: pointer;
 }
-
 .cancel-btn {
   flex: 1;
   height: 42px;
-
   background: #44875f;
   border: none;
   border-radius: 8px;
-
   font-size: 14px;
   cursor: pointer;
 }
-
 .confirm-btn:hover {
   background: #1f3d2b;
 }
-
 .gifts-title {
   margin-top: 60px;
   margin-bottom: 20px;
   color: #1f3d2b;
   text-align: center;
 }
-
 .gift p {
   margin: 6px 0;
   line-height: 1.35;
 }
-
 .gift-top {
   display: flex;
   align-items: flex-start;
@@ -231,20 +178,16 @@ footer {
   margin-bottom: 6px;
   flex-direction: column;
   gap: 6px;
-
 }
-
 .gift-name {
   margin: 0;
   font-size: 18px;
 }
-
 .gift-price-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-
   font-size: 12px;
   background: #eef2eb;
   border: 1px solid #dbe4d8;
@@ -252,49 +195,35 @@ footer {
   padding: 6px 10px;
   border-radius: 999px;
 }
-
 .gift-price-label {
   font-weight: 600;
   color: #3730a3;
 }
-
-
 .gift-description {
   line-height: 1.5;
   margin-bottom: 8px;
 }
-
-
 .gift-status {
   margin: 8px 0 0;
   font-size: 14px;
 }
-
-
 .gift--reserved {
   opacity: 0.75;
   background: #f1f3f1;
 }
-
 .gift-note {
   font-size: 13px;
   font-style: italic;
   color: #6b7280;
 }
-
-
 .gift * {
   white-space: normal;
   word-break: break-word;
 }
-
-
 .hero {
   text-align: center;
   margin-bottom: 50px;
 }
-
-
 .hero img {
   width: 200px;
   height: auto;
@@ -302,14 +231,11 @@ footer {
   margin-bottom: 20px;
   border: 3px solid #e5e7eb;
 }
-
-
 .hero h1 {
   margin: 0;
   font-size: 28px;
   color: #1f3d2b;
 }
-
 .subtitle {
   margin-top: 6px;
   font-size: 15px;
