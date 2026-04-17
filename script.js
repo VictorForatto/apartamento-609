@@ -21,31 +21,36 @@ async function carregarPresentes() {
     const div = document.createElement("div");
     div.className = "gift";
 
-  div.innerHTML = `
-    <div class="gift-top">
-      <h4 class="gift-name">${presente.name}</h4>
+    const isDisponivel = presente.status === "disponivel";
+    div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
+
+    div.innerHTML = `
+      <div class="gift-top">
+        <h4 class="gift-name">${presente.name}</h4>
+        ${
+          presente.price_range
+            ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
+            : ""
+        }
+      </div>
+  
+      ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
+    
+      <p class="gift-status">
+        <strong>Status:</strong>
+        ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
+      </p>
+
+      ${!isDisponivel ? `<p class="gift-note">Obrigado! Este item já foi reservado 🤍</p>` : ""}
+    
       ${
-        presente.price_range
-          ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
+        presente.status === "disponivel"
+          ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name.replace(/'/g, "\\'")}')">
+               Quero presentear
+             </button>`
           : ""
       }
-    </div>
-  
-    ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
-  
-    <p class="gift-status">
-      <strong>Status:</strong>
-      ${presente.status === "disponivel" ? "✅ Disponível" : "🔒 Reservado"}
-    </p>
-  
-    ${
-      presente.status === "disponivel"
-        ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${presente.name.replace(/'/g, "\\'")}')">
-             Quero presentear
-           </button>`
-        : ""
-    }
-  `;
+    `;
 
     lista.appendChild(div);
   });
