@@ -25,7 +25,7 @@ async function carregarPresentes() {
     <h4 class="gift-name">${presente.name}</h4>
   
     <p class="gift-description">
-      ${presente.description || ""}
+      ${presente.description}
     </p>
 
     <p class="gift-price">💰 ${presente.price_range}</p>
