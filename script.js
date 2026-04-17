@@ -159,7 +159,7 @@ async function confirmarReserva() {
     // Só tentamos disparar se reservationId existir
     if (reservationId) {
       try {
-        await fetch(`https://hyopntdqlmvivlcfsvoh.supabase.co/functions/v1/send-reservation-email`, {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
