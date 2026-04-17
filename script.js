@@ -159,17 +159,19 @@ async function confirmarReserva() {
     // Só tentamos disparar se reservationId existir
     if (reservationId) {
       try {
-        await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
+        await fetch(`https://hyopntdqlmvivlcfsvoh.supabase.co/functions/v1/send-reservation-email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             apikey: SUPABASE_KEY,
             Authorization: `Bearer ${SUPABASE_KEY}`
           },
-          body: JSON.stringify({ reservation_id: reservationId })
+          body: JSON.stringify({
+            reservation_id: reservationId
+          })
         });
       } catch (e) {
-        console.warn("Falha ao disparar e-mail (não bloqueia a reserva):", e);
+        console.warn("Falha ao enviar e-mail:", e);
       }
     }
 
