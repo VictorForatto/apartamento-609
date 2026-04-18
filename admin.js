@@ -5,31 +5,35 @@ const supabase = window.supabase.createClient(
 
 let editingId = null;
 
-/* LOGIN */
 async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
   const { error } = await supabase.auth.signInWithPassword({
     email,
-    password
+    password,
   });
 
   if (error) {
-    alert("Erro no login");
-  } else {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    loadGifts();
+    alert("Erro no login: " + error.message);
+    return;
   }
+
+  document.getElementById("login-box").style.display = "none";
+  document.getElementById("admin-panel").style.display = "block";
+  loadGifts();
 }
 
-/* LISTAR */
 async function loadGifts() {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("gifts")
     .select("*")
     .order("price_order");
+
+  if (error) {
+    alert("Erro ao carregar presentes");
+    return;
+  }
 
   const list = document.getElementById("gift-list");
   list.innerHTML = "";
@@ -44,7 +48,6 @@ async function loadGifts() {
   });
 }
 
-/* EDITAR */
 async function editGift(id) {
   const { data } = await supabase
     .from("gifts")
@@ -62,7 +65,6 @@ async function editGift(id) {
     (data.reference_links || []).join("\n");
 }
 
-/* SALVAR */
 async function saveGift() {
   const gift = {
     name: document.getElementById("gift-name").value,
@@ -70,13 +72,11 @@ async function saveGift() {
     price_range: document.getElementById("gift-price").value,
     price_order: Number(document.getElementById("gift-order").value),
     reference_links:
-      document.getElementById("gift-links").value.split("\n")
+      document.getElementById("gift-links").value.split("\n"),
   };
 
   if (editingId) {
-    await supabase.from("gifts")
-      .update(gift)
-      .eq("id", editingId);
+    await supabase.from("gifts").update(gift).eq("id", editingId);
   } else {
     await supabase.from("gifts").insert(gift);
   }
@@ -85,8 +85,7 @@ async function saveGift() {
   loadGifts();
 }
 
-// expor funções para o HTML (onclick)
+// ✅ EXPÕE PARA O HTML
 window.login = login;
 window.saveGift = saveGift;
 window.editGift = editGift;
-window.deleteGift = deleteGift;
