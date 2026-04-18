@@ -13,21 +13,18 @@
 
       <h1>Admin · Lista de Presentes</h1>
 
-      <!-- LOGIN -->
       <div id="login-box">
         <input id="email" type="email" placeholder="Email" />
         <input id="password" type="password" placeholder="Senha" />
         <button onclick="login()">Entrar</button>
       </div>
 
-      <!-- ADMIN -->
       <div id="admin-panel" style="display:none;">
-
         <h3>Novo / Editar Presente</h3>
 
         <input id="gift-name" placeholder="Nome do presente" />
         <textarea id="gift-desc" placeholder="Descrição"></textarea>
-        <input id="gift-price" placeholder="Faixa de preço (ex: R$ 251–500)" />
+        <input id="gift-price" placeholder="Faixa de preço" />
         <input id="gift-order" type="number" placeholder="Ordem" />
         <textarea id="gift-links" placeholder="Links (1 por linha)"></textarea>
 
@@ -37,15 +34,14 @@
 
         <h3>Presentes cadastrados</h3>
         <div id="gift-list"></div>
-
       </div>
 
     </div>
   </div>
 
-  <!-- SCRIPTS -->
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="admin.js"></script>
 
 </body>
 </html>
+``
