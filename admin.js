@@ -84,3 +84,9 @@ async function saveGift() {
   editingId = null;
   loadGifts();
 }
+
+// expor funções para o HTML (onclick)
+window.login = login;
+window.saveGift = saveGift;
+window.editGift = editGift;
+window.deleteGift = deleteGift;
