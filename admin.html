@@ -1,12 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <title>Admin · Apartamento 609</title>
-  <style.css</head>
+
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin · Apartamento 609</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <script src="https://unpkg.com/@supabase/supabase-jsscript>
 
 <body>
+
   <div class="container">
+    <div class="admin-card">
+
 
     <h1>Admin · Lista de Presentes</h1>
 
@@ -24,7 +31,7 @@
 
       <input id="gift-name" placeholder="Nome do presente" />
       <textarea id="gift-desc" placeholder="Descrição"></textarea>
-      <input id="gift-price" placeholder="Faixa de preço (ex: R$ 200–400)" />
+      <input id="gift-price" placeholder="Faixa de preço (ex: R$ 251–500)" />
       <input id="gift-order" type="number" placeholder="Ordem" />
       <textarea id="gift-links" placeholder="Links (1 por linha)"></textarea>
 
@@ -36,6 +43,12 @@
       <div id="gift-list"></div>
 
     </div>
+    </div>
   </div>
+
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+
 </body>
 </html>
