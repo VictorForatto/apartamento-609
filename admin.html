@@ -1,54 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin · Apartamento 609</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-
-  <script src="https://unpkg.com/@supabase/supabase-jsscript>
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin · Apartamento 609</title>
+  <tyle.css
+</head>
 
 <body>
 
   <div class="container">
     <div class="admin-card">
 
+      <h1>Admin · Lista de Presentes</h1>
 
-    <h1>Admin · Lista de Presentes</h1>
+      <!-- LOGIN -->
+      <div id="login-box">
+        <input id="email" type="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Senha" />
+        <button onclick="login()">Entrar</button>
+      </div>
 
-    <!-- LOGIN -->
-    <div id="login-box">
-      <input id="email" type="email" placeholder="Email" />
-      <input id="password" type="password" placeholder="Senha" />
-      <button onclick="login()">Entrar</button>
-    </div>
+      <!-- ADMIN -->
+      <div id="admin-panel" style="display:none;">
 
-    <!-- ADMIN -->
-    <div id="admin-panel" style="display:none;">
+        <h3>Novo / Editar Presente</h3>
 
-      <h3>Novo / Editar Presente</h3>
+        <input id="gift-name" placeholder="Nome do presente" />
+        <textarea id="gift-desc" placeholder="Descrição"></textarea>
+        <input id="gift-price" placeholder="Faixa de preço (ex: R$ 251–500)" />
+        <input id="gift-order" type="number" placeholder="Ordem" />
+        <textarea id="gift-links" placeholder="Links (1 por linha)"></textarea>
 
-      <input id="gift-name" placeholder="Nome do presente" />
-      <textarea id="gift-desc" placeholder="Descrição"></textarea>
-      <input id="gift-price" placeholder="Faixa de preço (ex: R$ 251–500)" />
-      <input id="gift-order" type="number" placeholder="Ordem" />
-      <textarea id="gift-links" placeholder="Links (1 por linha)"></textarea>
+        <button onclick="saveGift()">Salvar</button>
 
-      <button onclick="saveGift()">Salvar</button>
+        <hr />
 
-      <hr />
+        <h3>Presentes cadastrados</h3>
+        <div id="gift-list"></div>
 
-      <h3>Presentes cadastrados</h3>
-      <div id="gift-list"></div>
+      </div>
 
-    </div>
     </div>
   </div>
 
-
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="admin.js"></script>
-
+  <!-- SCRIPTS (sempre no final do body) -->
+  <script src="https://unpkg.com/@supabase/sup<script src="admin
 </body>
 </html>
