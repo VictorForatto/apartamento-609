@@ -282,3 +282,29 @@ footer {
   font-style: italic;
   color: #6b7280;
 }
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  width: 220px;
+  height: 100%;
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: contain;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  left: 0;
+  background-image: url("floral.jpg");
+}
+body::after {
+  right: 0;
+  background-image: url("floral.jpg");
+}
+.container {
+  position: relative;
+  z-index: 1;
+}
