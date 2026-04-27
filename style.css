@@ -298,11 +298,11 @@ body::after {
 }
 body::before {
   left: 0;
-  background-image: url("floral2.jpg");
+  background-image: url("floral2.png");
 }
 body::after {
   right: 0;
-  background-image: url("floral1.jpg");
+  background-image: url("floral1.png");
 }
 .container {
   position: relative;
