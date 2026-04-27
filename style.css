@@ -5,11 +5,6 @@ body {
   background-color: #f7f6f3;
   color: #1f2937;
 }
-.container {
-  max-width: 900px;
-  margin: 40px auto;
-  padding: 40px 30px;
-}
 h1, h2, h3 {
   text-align: center;
 }
@@ -311,16 +306,15 @@ body::after {
   right: 0;
   background-image: url("floral1.png");
 }
-
-
 .container {
   background-image: url("imagem.png");
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 40px 30px;
 }
-
-
 
 @media (max-width: 768px) {
   body::before,
