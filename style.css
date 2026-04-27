@@ -289,25 +289,31 @@ body::after {
   top: 0;
   width: 220px;
   height: 100%;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;     /* 🔑 repete só na vertical */
   background-position: top center;
-  background-size: contain;
+  background-size: 180px auto;     /* controla a largura */
   opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
+
+/* esquerda */
 body::before {
   left: 0;
   background-image: url("floral2.png");
 }
+
+/* direita */
 body::after {
   right: 0;
   background-image: url("floral1.png");
 }
+
 .container {
   position: relative;
   z-index: 1;
 }
+
 @media (max-width: 768px) {
   body::before,
   body::after {
