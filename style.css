@@ -308,3 +308,9 @@ body::after {
   position: relative;
   z-index: 1;
 }
+@media (max-width: 768px) {
+  body::before,
+  body::after {
+    display: none;
+  }
+}
