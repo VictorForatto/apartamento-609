@@ -220,9 +220,18 @@ footer {
   white-space: normal;
   word-break: break-word;
 }
+
 .hero {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
+  position: relative;
+}
+
+.hero::before {
+  content: "🌿";
+  display: block;
+  font-size: 26px;
+  margin-bottom: 12px;
 }
 .hero img {
   width: 200px;
@@ -232,8 +241,10 @@ footer {
   border: 3px solid #e5e7eb;
 }
 .hero h1 {
+  font-family: "Georgia", serif;
   margin: 0;
   font-size: 28px;
+  letter-spacing: 1px;
   color: #1f3d2b;
 }
 .subtitle {
@@ -241,7 +252,6 @@ footer {
   font-size: 15px;
   color: #6b7280;
 }
-
 .event-section {
   margin-top: 60px;
   padding: 32px 28px;
@@ -250,31 +260,26 @@ footer {
   border: 1px solid #e5e7eb;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
 }
-
 .event-title {
   text-align: center;
   color: #1f3d2b;
   margin-bottom: 18px;
 }
-
 .event-highlight {
   text-align: center;
   font-size: 15px;
   color: #374151;
   margin-bottom: 18px;
 }
-
 .event-info {
   list-style: none;
   padding: 0;
   margin: 0 0 18px;
 }
-
 .event-info li {
   margin-bottom: 10px;
   line-height: 1.5;
 }
-
 .event-note {
   text-align: center;
   font-style: italic;
