@@ -282,6 +282,7 @@ footer {
   font-style: italic;
   color: #6b7280;
 }
+
 body::before,
 body::after {
   content: "";
@@ -289,9 +290,11 @@ body::after {
   top: 0;
   width: 220px;
   height: 100%;
-  background-repeat: repeat-y;     /* 🔑 repete só na vertical */
+
+  background-repeat: repeat-y;      /* 🔑 preenche toda a altura */
   background-position: top center;
-  background-size: 180px auto;     /* controla a largura */
+  background-size: 180px auto;      /* controla largura da arte */
+
   opacity: 0.22;
   pointer-events: none;
   z-index: 0;
@@ -309,10 +312,12 @@ body::after {
   background-image: url("floral1.png");
 }
 
+/* garante que o conteúdo fique acima */
 .container {
   position: relative;
   z-index: 1;
 }
+
 
 @media (max-width: 768px) {
   body::before,
