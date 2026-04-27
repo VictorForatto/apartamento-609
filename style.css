@@ -291,9 +291,9 @@ body::after {
   width: 220px;
   height: 100%;
 
-  background-repeat: repeat-y;      /* 🔑 preenche toda a altura */
-  background-position: top center;
-  background-size: 180px auto;      /* controla largura da arte */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;   /* ou contain */
 
   opacity: 0.22;
   pointer-events: none;
@@ -312,11 +312,14 @@ body::after {
   background-image: url("floral1.png");
 }
 
-/* garante que o conteúdo fique acima */
+
 .container {
-  position: relative;
-  z-index: 1;
+  background-image: url("imagem.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
+
 
 
 @media (max-width: 768px) {
