@@ -241,3 +241,42 @@ footer {
   font-size: 15px;
   color: #6b7280;
 }
+
+.event-section {
+  margin-top: 60px;
+  padding: 32px 28px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.event-title {
+  text-align: center;
+  color: #1f3d2b;
+  margin-bottom: 18px;
+}
+
+.event-highlight {
+  text-align: center;
+  font-size: 15px;
+  color: #374151;
+  margin-bottom: 18px;
+}
+
+.event-info {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+}
+
+.event-info li {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.event-note {
+  text-align: center;
+  font-style: italic;
+  color: #6b7280;
+}
