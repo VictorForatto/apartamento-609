@@ -102,11 +102,49 @@ async function carregarPresentes() {
 }
 
 // ---------- MODAL ----------
-function abrirFormulario(id, nome) {
+async function abrirFormulario(id, nome) {
   giftSelecionado = id;
-  const title = document.getElementById("modal-title");
-  if (title) title.innerText = `Você irá nos presentear com um(a): ${nome}`;
 
+  // Atualiza título do modal
+  const title = document.getElementById("modal-title");
+  if (title) {
+    title.innerText = `Você irá nos presentear com um(a): ${nome}`;
+  }
+
+  try {
+    // Busca quantidade disponível em tempo real
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/gifts?id=eq.${id}&select=quantity_total,quantity_reserved`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Falha ao buscar quantidade do presente");
+    }
+
+    const data = await response.json();
+    const gift = data[0];
+
+    const total = gift.quantity_total ?? 1;
+    const reservadas = gift.quantity_reserved ?? 0;
+    const disponiveis = total - reservadas;
+
+    const quantidadeInput = document.getElementById("quantidade");
+    if (quantidadeInput) {
+      quantidadeInput.max = disponiveis;
+      quantidadeInput.value = 1;
+    }
+
+  } catch (e) {
+    console.warn("Não foi possível carregar a quantidade disponível:", e);
+  }
+
+  // Abre o modal
   const overlay = document.getElementById("modal-overlay");
   if (overlay) overlay.style.display = "flex";
 }
@@ -158,8 +196,26 @@ async function confirmarReserva() {
     });
 
     if (!resp.ok) {
-      const errText = await resp.text();
-      alert("Não foi possível reservar. Talvez alguém já tenha reservado este item.\n\n" + errText);
+      let errorMessage = "Não foi possível realizar a reserva.";
+    
+      try {
+        const errText = await resp.text();
+    
+        if (
+          errText.includes("Quantidade solicitada maior que o disponível")
+        ) {
+          errorMessage =
+            "A quantidade escolhida é maior do que a disponível no momento 🤍\n" +
+            "Por favor, escolha uma quantidade menor.";
+        } else if (errText.includes("Presente já está totalmente reservado")) {
+          errorMessage =
+            "Este presente já foi totalmente reservado 🤍";
+        }
+      } catch (_) {
+        // fallback silencioso
+      }
+    
+      alert(errorMessage);
       return;
     }
 
