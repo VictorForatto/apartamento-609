@@ -131,6 +131,9 @@ async function confirmarReserva() {
     10
   );
 
+  if (!quantidade || quantidade < 1) {
+  return alert("Informe uma quantidade válida.");
+  }
 
   if (!giftSelecionado) return alert("Nenhum presente selecionado.");
   if (nome.length < 2) return alert("Por favor, informe seu nome.");
