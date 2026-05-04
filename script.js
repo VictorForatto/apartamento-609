@@ -48,7 +48,11 @@ async function carregarPresentes() {
     lista.innerHTML = "";
 
     presentes.forEach((presente) => {
-      const isDisponivel = presente.status === "disponivel";
+
+      const total = presente.quantity_total ?? 1;
+      const reservadas = presente.quantity_reserved ?? 0;
+      const disponiveis = total - reservadas;
+      const isDisponivel = disponiveis > 0;
 
       const div = document.createElement("div");
       div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
@@ -65,9 +69,10 @@ async function carregarPresentes() {
 
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
 
+
         <p class="gift-status">
-          <strong>Status:</strong>
-          ${isDisponivel ? "✅ Disponível" : "🔒 Reservado"}
+          <strong>Disponível:</strong>
+          ${disponiveis} de ${total}
         </p>
 
         ${
@@ -76,13 +81,16 @@ async function carregarPresentes() {
             : ""
         }
 
+
         ${
-          isDisponivel
-            ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
+          disponiveis > 0
+            ? `<button class="reserve-btn"
+                 onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
                  Selecionar presente
                </button>`
-            : ""
+            : `<p class="gift-note">Todas as unidades já foram reservadas 🤍</p>`
         }
+
       `;
 
       lista.appendChild(div);
