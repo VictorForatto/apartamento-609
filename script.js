@@ -147,11 +147,13 @@ async function confirmarReserva() {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`
       },
+
       body: JSON.stringify({
         p_gift_id: giftSelecionado,
         p_name: nome,
         p_email: email,
-        p_message: mensagem || null
+        p_message: mensagem || null,
+        p_quantity: quantidade
       })
     });
 
