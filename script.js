@@ -122,9 +122,15 @@ window.fecharModal = fecharModal;
 
 // ---------- CONFIRMAR RESERVA ----------
 async function confirmarReserva() {
+
   const nome = (document.getElementById("nome")?.value || "").trim();
   const email = (document.getElementById("email")?.value || "").trim();
   const mensagem = (document.getElementById("mensagem")?.value || "").trim();
+  const quantidade = parseInt(
+    document.getElementById("quantidade")?.value || "1",
+    10
+  );
+
 
   if (!giftSelecionado) return alert("Nenhum presente selecionado.");
   if (nome.length < 2) return alert("Por favor, informe seu nome.");
