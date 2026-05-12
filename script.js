@@ -80,11 +80,81 @@ async function carregarPresentes() {
     const presentes = await response.json();
     lista.innerHTML = "";
 
+    // ------------------------------------------------------------------
+    // MELHORIA 4: Contador de progresso
+    // Soma todas as unidades totais e reservadas para exibir o progresso
+    // geral da lista antes dos cards. O reduce() percorre o array uma
+    // única vez acumulando os dois totais simultaneamente.
+    // ------------------------------------------------------------------
+    const { totalGeral, reservadasGeral } = presentes.reduce(
+      (acc, p) => ({
+        totalGeral: acc.totalGeral + (p.quantity_total ?? 1),
+        reservadasGeral: acc.reservadasGeral + (p.quantity_reserved ?? 0),
+      }),
+      { totalGeral: 0, reservadasGeral: 0 }
+    );
+
+    const contador = document.createElement("p");
+    contador.className = "gifts-counter";
+    contador.innerHTML = `💚 <strong>${reservadasGeral}</strong> de <strong>${totalGeral}</strong> presentes já reservados`;
+    lista.appendChild(contador);
+
+    // ------------------------------------------------------------------
+    // MELHORIA 5: Lista vazia — card comemorativo
+    // Se todos os presentes foram 100% reservados, exibe uma mensagem
+    // especial em vez de uma lista vazia sem explicação.
+    // ------------------------------------------------------------------
+    const tudoReservado = presentes.every(
+      (p) => (p.quantity_reserved ?? 0) >= (p.quantity_total ?? 1)
+    );
+
+    if (tudoReservado) {
+      const vazio = document.createElement("div");
+      vazio.className = "gifts-empty";
+      vazio.innerHTML = `
+        <p class="gifts-empty-emoji">🎉</p>
+        <h4>Todos os presentes foram reservados!</h4>
+        <p>Ficamos sem palavras de tanta gratidão.<br>Cada gesto de carinho de vocês significa muito para nós 🤍</p>
+      `;
+      lista.appendChild(vazio);
+      return;
+    }
+
     presentes.forEach((presente) => {
       const total = presente.quantity_total ?? 1;
       const reservadas = presente.quantity_reserved ?? 0;
       const disponiveis = total - reservadas;
       const isDisponivel = disponiveis > 0;
+
+      // ------------------------------------------------------------------
+      // MELHORIA 1: Links de referência
+      // O banco armazena reference_links como array JSON (string).
+      // Fazemos o parse com segurança — se falhar ou vier vazio, links = [].
+      // Filtramos links que parecem URLs reais (começam com http).
+      // ------------------------------------------------------------------
+      let links = [];
+      try {
+        const parsed = JSON.parse(presente.reference_links || "[]");
+        links = Array.isArray(parsed)
+          ? parsed.filter((l) => typeof l === "string" && l.startsWith("http"))
+          : [];
+      } catch (_) {
+        links = [];
+      }
+
+      const linksHTML =
+        links.length > 0
+          ? `<div class="gift-links">
+               ${links
+                 .map(
+                   (url, i) =>
+                     `<a class="gift-link-btn" href="${url}" target="_blank" rel="noopener noreferrer">
+                        Ver sugestão de produto${links.length > 1 ? ` ${i + 1}` : ""} 🔗
+                      </a>`
+                 )
+                 .join("")}
+             </div>`
+          : "";
 
       const div = document.createElement("div");
       div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
@@ -100,6 +170,8 @@ async function carregarPresentes() {
         </div>
 
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
+
+        ${linksHTML}
 
         <p class="gift-status">
           <strong>Disponível:</strong>
@@ -165,6 +237,18 @@ async function abrirFormulario(id, nome) {
       quantidadeInput.value = 1;
     }
 
+    // ------------------------------------------------------------------
+    // MELHORIA 2: Ocultar campo de quantidade quando total = 1
+    // Se o presente tem apenas 1 unidade no total, não faz sentido
+    // perguntar "quantos você quer". Ocultamos o input inteiro.
+    // O wrapper .quantidade-wrapper agrupa label + input para facilitar
+    // mostrar/ocultar com uma única propriedade CSS.
+    // ------------------------------------------------------------------
+    const quantidadeWrapper = document.getElementById("quantidade-wrapper");
+    if (quantidadeWrapper) {
+      quantidadeWrapper.style.display = total <= 1 ? "none" : "block";
+    }
+
   } catch (e) {
     console.warn("Não foi possível carregar a quantidade disponível:", e);
   }
@@ -225,6 +309,20 @@ async function confirmarReserva() {
   if (!giftSelecionado) return showToast("Nenhum presente selecionado.", "error");
   if (nome.length < 2) return showToast("Por favor, informe seu nome.", "error");
   if (!email.includes("@")) return showToast("Por favor, informe um e-mail válido.", "error");
+
+  // ------------------------------------------------------------------
+  // MELHORIA 3: Loading state no botão Confirmar
+  // Enquanto o fetch estiver em andamento:
+  //   - O botão é desabilitado (evita cliques duplos e reservas duplicadas)
+  //   - O texto muda para "Aguarde..." como feedback visual
+  // O bloco finally garante que o botão sempre volta ao estado normal,
+  // mesmo se ocorrer um erro inesperado.
+  // ------------------------------------------------------------------
+  const confirmBtn = document.querySelector(".confirm-btn");
+  if (confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Aguarde...";
+  }
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
@@ -291,6 +389,12 @@ async function confirmarReserva() {
   } catch (e) {
     console.error(e);
     showToast("Erro ao reservar. Tente novamente em instantes.", "error");
+  } finally {
+    // Sempre restaura o botão, independente de sucesso ou erro
+    if (confirmBtn) {
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = "Confirmar";
+    }
   }
 }
 
