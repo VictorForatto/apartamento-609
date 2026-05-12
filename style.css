@@ -370,3 +370,115 @@ body::after {
 .toast.toast--error {
   background-color: #b91c1c;
 }
+
+/* ============================================================
+   MELHORIA 4: Contador de progresso
+   Fica acima dos cards, centralizado, com fonte levemente menor
+   para não competir com o título da seção.
+   ============================================================ */
+.gifts-counter {
+  grid-column: 1 / -1; /* ocupa toda a largura do grid */
+  text-align: center;
+  font-size: 14px;
+  color: #4b7a5e;
+  margin: 0 0 8px;
+  padding: 10px 16px;
+  background: #eef2eb;
+  border-radius: 8px;
+  border: 1px solid #dbe4d8;
+}
+
+/* ============================================================
+   MELHORIA 5: Card de lista vazia / todos reservados
+   ============================================================ */
+.gifts-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 24px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+}
+
+.gifts-empty-emoji {
+  font-size: 48px;
+  margin: 0 0 12px;
+  line-height: 1;
+}
+
+.gifts-empty h4 {
+  font-size: 20px;
+  color: #1f3d2b;
+  margin: 0 0 10px;
+}
+
+.gifts-empty p {
+  color: #6b7280;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ============================================================
+   MELHORIA 1: Links de referência nos cards
+   Botão discreto com aparência de link, verde alinhado com
+   a identidade do site.
+   ============================================================ */
+.gift-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.gift-link-btn {
+  display: inline-block;
+  font-size: 13px;
+  color: #1f3d2b;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 4px 0;
+  border-bottom: 1px dashed #a3c4a8;
+  width: fit-content;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.gift-link-btn:hover {
+  color: #2f5d42;
+  border-color: #2f5d42;
+}
+
+/* ============================================================
+   MELHORIA 3: Estado desabilitado do botão Confirmar
+   ============================================================ */
+.confirm-btn:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+/* ============================================================
+   MELHORIA 6: Responsividade do modal em telas < 380px
+   Em telas muito pequenas, reduzimos padding e tamanhos de
+   fonte para o modal não ficar apertado ou cortado.
+   ============================================================ */
+@media (max-width: 380px) {
+  .modal-content {
+    padding: 20px 16px;
+  }
+
+  .modal-content h3 {
+    font-size: 15px;
+  }
+
+  .modal-content input,
+  .modal-content textarea {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .confirm-btn,
+  .cancel-btn {
+    font-size: 13px;
+    height: 38px;
+  }
+}
