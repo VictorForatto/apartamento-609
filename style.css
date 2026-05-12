@@ -54,7 +54,7 @@ footer {
   padding: 22px;
   display: flex;
   flex-direction: column;
-  overflow: visible; /* 🔑 nunca corta conteúdo */
+  overflow: visible;
 }
 .reserve-btn {
   width: 100%;
@@ -154,7 +154,7 @@ footer {
   cursor: pointer;
 }
 .confirm-btn:hover {
-  background: #1f3d2b;
+  background: #2f5d42;
 }
 .gifts-title {
   margin-top: 60px;
@@ -285,27 +285,24 @@ body::after {
   top: 0;
   width: 220px;
   height: 100%;
-
   background-repeat: no-repeat;
   background-position: center;
-  background-size: cover;   /* ou contain */
-
+  background-size: cover;
   opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
 
-/* esquerda */
 body::before {
   left: 0;
   background-image: url("floral2.png");
 }
 
-/* direita */
 body::after {
   right: 0;
   background-image: url("floral1.png");
 }
+
 .container {
   background-image: url("imagem.png");
   background-repeat: no-repeat;
@@ -323,4 +320,53 @@ body::after {
   body::after {
     display: none;
   }
+}
+
+/* ============================================================
+   ✅ FIX 3: TOAST — notificação flutuante no lugar do alert()
+   ============================================================
+
+   Estratégia de animação:
+   - O toast começa fora da tela (translateY(20px)) e invisível (opacity: 0)
+   - A classe .toast--visible ativa a transição CSS para a posição final
+   - Quando a classe é removida (após o timer), o CSS reverte suavemente
+   - `pointer-events: none` garante que o toast não bloqueie cliques
+     quando invisível; vira `auto` apenas quando visível
+*/
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 14px 24px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999;
+  max-width: 90vw;
+  text-align: center;
+
+  /* A transição aplica tanto na entrada quanto na saída */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+/* Verde escuro do site para sucesso */
+.toast.toast--success {
+  background-color: #1f3d2b;
+}
+
+/* Vermelho discreto para erros */
+.toast.toast--error {
+  background-color: #b91c1c;
 }
