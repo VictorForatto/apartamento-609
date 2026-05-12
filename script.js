@@ -20,6 +20,39 @@ async function parseRpcReturn(resp) {
   return null;
 }
 
+// ---------- TOAST ----------
+/*
+  showToast() substitui todos os alert() do projeto.
+
+  Como funciona:
+  1. Pega o elemento #toast (já existe no HTML, oculto por padrão via CSS)
+  2. Define o texto e o tipo visual (success = verde, error = vermelho)
+  3. Adiciona a classe CSS "toast--visible" que dispara a animação de entrada
+  4. Após `duration` ms, remove a classe — o CSS cuida da saída suavemente
+  5. O clearTimeout garante que chamadas rápidas em sequência não se sobreponham
+*/
+let toastTimer = null;
+
+function showToast(message, type = "success", duration = 3500) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+
+  // Cancela qualquer toast anterior que ainda esteja na tela
+  clearTimeout(toastTimer);
+  toast.classList.remove("toast--visible", "toast--success", "toast--error");
+
+  // Força reflow para reiniciar a animação caso o toast já estivesse visível.
+  // Sem isso, remover e adicionar a classe no mesmo frame não reinicia a transição.
+  void toast.offsetWidth;
+
+  toast.textContent = message;
+  toast.classList.add("toast--visible", `toast--${type}`);
+
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("toast--visible");
+  }, duration);
+}
+
 // ---------- LISTA PRESENTES ----------
 async function carregarPresentes() {
   const lista = document.getElementById("lista-presentes");
@@ -48,7 +81,6 @@ async function carregarPresentes() {
     lista.innerHTML = "";
 
     presentes.forEach((presente) => {
-
       const total = presente.quantity_total ?? 1;
       const reservadas = presente.quantity_reserved ?? 0;
       const disponiveis = total - reservadas;
@@ -69,7 +101,6 @@ async function carregarPresentes() {
 
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
 
-
         <p class="gift-status">
           <strong>Disponível:</strong>
           ${disponiveis} de ${total}
@@ -81,7 +112,6 @@ async function carregarPresentes() {
             : ""
         }
 
-
         ${
           disponiveis > 0
             ? `<button class="reserve-btn"
@@ -90,7 +120,6 @@ async function carregarPresentes() {
                </button>`
             : `<p class="gift-note">Todas as unidades já foram reservadas 🤍</p>`
         }
-
       `;
 
       lista.appendChild(div);
@@ -105,14 +134,12 @@ async function carregarPresentes() {
 async function abrirFormulario(id, nome) {
   giftSelecionado = id;
 
-  // Atualiza título do modal
   const title = document.getElementById("modal-title");
   if (title) {
     title.innerText = `Você irá nos presentear com um(a): ${nome}`;
   }
 
   try {
-    // Busca quantidade disponível em tempo real
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/gifts?id=eq.${id}&select=quantity_total,quantity_reserved`,
       {
@@ -123,9 +150,7 @@ async function abrirFormulario(id, nome) {
       }
     );
 
-    if (!response.ok) {
-      throw new Error("Falha ao buscar quantidade do presente");
-    }
+    if (!response.ok) throw new Error("Falha ao buscar quantidade do presente");
 
     const data = await response.json();
     const gift = data[0];
@@ -144,7 +169,6 @@ async function abrirFormulario(id, nome) {
     console.warn("Não foi possível carregar a quantidade disponível:", e);
   }
 
-  // Abre o modal
   const overlay = document.getElementById("modal-overlay");
   if (overlay) overlay.style.display = "flex";
 }
@@ -154,13 +178,38 @@ function fecharModal() {
   if (overlay) overlay.style.display = "none";
 }
 
-// expõe para o onclick funcionar
+// ✅ FIX 2: Fechar modal ao clicar fora do conteúdo
+/*
+  O overlay (#modal-overlay) ocupa a tela inteira.
+  O conteúdo real (.modal-content) fica centralizado dentro dele.
+
+  Quando o usuário clica no overlay, o evento dispara nele — mas
+  se clicar dentro do .modal-content, o evento "borbulha" (bubble)
+  até o overlay também.
+
+  A verificação `event.target === overlay` distingue os dois casos:
+  - Clicou no fundo escuro (target É o overlay)  → fecha
+  - Clicou dentro do card branco (target É outro elemento) → ignora
+*/
+document.addEventListener("DOMContentLoaded", () => {
+  const overlay = document.getElementById("modal-overlay");
+  if (overlay) {
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        fecharModal();
+      }
+    });
+  }
+
+  carregarPresentes();
+});
+
+// expõe para os onclick inline funcionarem
 window.abrirFormulario = abrirFormulario;
 window.fecharModal = fecharModal;
 
 // ---------- CONFIRMAR RESERVA ----------
 async function confirmarReserva() {
-
   const nome = (document.getElementById("nome")?.value || "").trim();
   const email = (document.getElementById("email")?.value || "").trim();
   const mensagem = (document.getElementById("mensagem")?.value || "").trim();
@@ -169,13 +218,13 @@ async function confirmarReserva() {
     10
   );
 
+  // ✅ FIX 3: showToast() no lugar de alert() em todas as validações
   if (!quantidade || quantidade < 1) {
-  return alert("Informe uma quantidade válida.");
+    return showToast("Informe uma quantidade válida.", "error");
   }
-
-  if (!giftSelecionado) return alert("Nenhum presente selecionado.");
-  if (nome.length < 2) return alert("Por favor, informe seu nome.");
-  if (!email.includes("@")) return alert("Por favor, informe um e-mail válido.");
+  if (!giftSelecionado) return showToast("Nenhum presente selecionado.", "error");
+  if (nome.length < 2) return showToast("Por favor, informe seu nome.", "error");
+  if (!email.includes("@")) return showToast("Por favor, informe um e-mail válido.", "error");
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
@@ -185,7 +234,6 @@ async function confirmarReserva() {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`
       },
-
       body: JSON.stringify({
         p_gift_id: giftSelecionado,
         p_name: nome,
@@ -197,41 +245,33 @@ async function confirmarReserva() {
 
     if (!resp.ok) {
       let errorMessage = "Não foi possível realizar a reserva.";
-    
+
       try {
         const errText = await resp.text();
-    
-        if (
-          errText.includes("Quantidade solicitada maior que o disponível")
-        ) {
-          errorMessage =
-            "A quantidade escolhida é maior do que a disponível no momento 🤍\n" +
-            "Por favor, escolha uma quantidade menor.";
+        if (errText.includes("Quantidade solicitada maior que o disponível")) {
+          errorMessage = "A quantidade escolhida é maior do que a disponível 🤍 Escolha uma quantidade menor.";
         } else if (errText.includes("Presente já está totalmente reservado")) {
-          errorMessage =
-            "Este presente já foi totalmente reservado 🤍";
+          errorMessage = "Este presente já foi totalmente reservado 🤍";
         }
       } catch (_) {
         // fallback silencioso
       }
-    
-      alert(errorMessage);
+
+      showToast(errorMessage, "error");
       return;
     }
 
     const reservationId = await parseRpcReturn(resp);
 
-    // atualiza UI imediatamente
     fecharModal();
     document.getElementById("nome").value = "";
     document.getElementById("email").value = "";
     document.getElementById("mensagem").value = "";
 
-    alert("Reserva registrada! 💚 Obrigado pelo carinho!");
+    // ✅ FIX 3: toast de sucesso no lugar do alert()
+    showToast("Reserva registrada! 💚 Obrigado pelo carinho!", "success");
     carregarPresentes();
 
-    // ✅ por enquanto, NÃO deixa e-mail quebrar nada
-    // Só tentamos disparar se reservationId existir
     if (reservationId) {
       try {
         await fetch(`${SUPABASE_URL}/functions/v1/send-reservation-email`, {
@@ -241,9 +281,7 @@ async function confirmarReserva() {
             apikey: SUPABASE_KEY,
             Authorization: `Bearer ${SUPABASE_KEY}`
           },
-          body: JSON.stringify({
-            reservation_id: reservationId
-          })
+          body: JSON.stringify({ reservation_id: reservationId })
         });
       } catch (e) {
         console.warn("Falha ao enviar e-mail:", e);
@@ -252,15 +290,8 @@ async function confirmarReserva() {
 
   } catch (e) {
     console.error(e);
-    alert("Erro ao reservar. Tente novamente em instantes.");
+    showToast("Erro ao reservar. Tente novamente em instantes.", "error");
   }
 }
 
 window.confirmarReserva = confirmarReserva;
-
-// ---------- START ----------
-document.addEventListener("DOMContentLoaded", () => {
-  carregarPresentes();
-});
-
-
