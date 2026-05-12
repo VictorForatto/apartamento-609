@@ -5,13 +5,68 @@
   <title>Gabriela & Victor | Apartamento 609</title>
   <link rel="stylesheet" href="style.css">
 </head>
+<body>
+  <div class="container">
 
-  <script src="script.js"></script>
-  <!-- MODAL DE RESERVA -->
+    <header class="hero">
+      <img src="casal1.jpeg" alt="Foto do casal" />
+      <h1>Gabriela Abrantes & Victor Forato</h1>
+      <p class="subtitle">Nosso novo lar 💚</p>
+    </header>
+
+    <p>Seja muito bem-vindo(a) 💚</p>
+    <p>
+      Criamos este espaço com muito carinho para compartilhar um momento muito especial das nossas vidas. Estamos dando um grande passo: a nossa nova casa e o início da nossa vida juntos.
+    </p>
+    <p>
+      Aqui você encontrará as informações sobre o nosso chá de casa nova e uma lista de presentes que podem nos ajudar a montar esse novo lar. Mas queremos deixar algo muito claro desde já:
+    </p>
+    <p>
+      <strong>Sintam-se totalmente à vontade.</strong><br>
+      Não existe obrigação, nem expectativa. O mais importante para nós é o carinho, a presença no evento e o apoio de sempre.
+    </p>
+    <p>
+      Se, em algum momento, você sentir vontade de nos presentear, saiba que cada gesto será recebido com muita gratidão. Cada item escolhido carrega um pedacinho de quem faz parte da nossa história.
+    </p>
+    <p>
+      Obrigado por caminhar com a gente, por apoiar a nossa união e por fazer parte deste novo começo 🤍
+    </p>
+    <p>
+      Com carinho,<br>
+      <strong>Gabriela & Victor</strong>
+    </p>
+
+    <section class="event-section">
+      <h3 class="event-title">🥂 Sobre o nosso chá de casa nova</h3>
+      <ul class="event-info">
+        <li><strong>📅 Data:</strong> 03 de Outubro de 2026</li>
+        <li><strong>⏰ Horário:</strong> A partir das 13hrs</li>
+        <li>
+          <strong>📍 Local:</strong> R. Eng. David Renê Miche, 22 – City América - São Paulo – SP
+        </li>
+      </ul>
+      <p class="event-note">
+        Esperamos vocês para celebrar esse novo capítulo com a gente 💚
+      </p>
+    </section>
+
+    <h3 class="gifts-title">🍃 Lista de presentes</h3>
+    <div id="lista-presentes"></div>
+
+  </div>
+
+  <!-- ✅ FIX 1: MODAL agora dentro do <body>, no final -->
+  <!--
+    Por que isso importa?
+    O HTML tem regras de onde cada elemento pode aparecer.
+    <div> só é válido dentro do <body>. Colocá-lo fora fazia o
+    navegador "consertar" silenciosamente o DOM de formas
+    imprevisíveis, podendo quebrar em browsers mais rígidos.
+  -->
   <div id="modal-overlay" class="modal-overlay">
     <div class="modal-content">
       <h3 id="modal-title"></h3>
-  
+
       <input id="nome" type="text" placeholder="Seu nome completo" />
       <input id="email" type="email" placeholder="Seu principal e-mail" />
       <input
@@ -22,76 +77,30 @@
         placeholder="Quantidade"
       />
       <textarea id="mensagem" placeholder="Mensagem para o casal (opcional)"></textarea>
-  
+
       <div class="modal-actions">
-        <button class="confirm-btn" onclick="confirmarReserva()">
-          Confirmar
-        </button>
-        <button class="cancel-btn" onclick="fecharModal()">
-          Cancelar
-        </button>
+        <button class="confirm-btn" onclick="confirmarReserva()">Confirmar</button>
+        <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
       </div>
     </div>
   </div>
-<body>
 
-  <div class="container">
-  
-  <header class="hero">
-    <img src="casal1.jpeg" alt="Foto do casal" />
-      <h1>Gabriela Abrantes & Victor Forato</h1>
-    <p class="subtitle">Nosso novo lar 💚</p>
-  </header>
+  <!-- Toast de confirmação -->
+  <!--
+    Em vez de alert() (que bloqueia a thread e é feio),
+    usamos um elemento flutuante que aparece, fica visível
+    por 3 segundos e some com uma transição CSS suave.
+  -->
+  <div id="toast" class="toast"></div>
 
-  <p>
-    Seja muito bem-vindo(a) 💚
-  </p>
-
-  <p>
-    Criamos este espaço com muito carinho para compartilhar um momento muito especial das nossas vidas. Estamos dando um grande passo: a nossa nova casa e o início da nossa vida juntos.
-  </p>
-
-  <p>
-    Aqui você encontrará as informações sobre o nosso chá de casa nova e uma lista de presentes que podem nos ajudar a montar esse novo lar. Mas queremos deixar algo muito claro desde já:
-  </p>
-
-  <p>
-    <strong>Sintam-se totalmente à vontade.</strong><br>
-    Não existe obrigação, nem expectativa. O mais importante para nós é o carinho, a presença no evento e o apoio de sempre.
-  </p>
-
-  <p>
-    Se, em algum momento, você sentir vontade de nos presentear, saiba que cada gesto será recebido com muita gratidão. Cada item escolhido carrega um pedacinho de quem faz parte da nossa história.
-  </p>
-
-  <p>
-    Obrigado por caminhar com a gente, por apoiar a nossa união e por fazer parte deste novo começo 🤍
-  </p>
-
-  <p>
-    Com carinho,<br>
-    <strong>Gabriela & Victor</strong>
-  </p>
-
-  <section class="event-section">
-    <h3 class="event-title">🥂 Sobre o nosso chá de casa nova</h3>
-  
-    <ul class="event-info">
-      <li><strong>📅 Data:</strong> 03 de Outubro de 2026</li>
-      <li><strong>⏰ Horário:</strong> A partir das 13hrs</li>
-      <li>
-        <strong>📍 Local:</strong> R. Eng. David Renê Miche, 22 – City América - São Paulo – SP
-      </li>
-    </ul>
-    <p class="event-note">
-      Esperamos vocês para celebrar esse novo capítulo com a gente 💚
-    </p>
-  </section>
-
-  <h3 class="gifts-title">🍃 Lista de presentes</h3>
-  
-  <div id="lista-presentes"></div>
-
-  </div>
+  <!-- ✅ FIX 1: <script> também no final do <body> -->
+  <!--
+    Carregar o script antes do </body> garante que todo o DOM
+    já existe quando o JS começa a rodar. Na posição anterior
+    (dentro do <head>), o script executava antes do body existir,
+    o que só funcionava porque o DOMContentLoaded protegia — mas
+    é uma prática ruim e desnecessariamente frágil.
+  -->
+  <script src="script.js"></script>
 </body>
 </html>
