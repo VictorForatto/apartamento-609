@@ -769,3 +769,61 @@ body::after {
   text-align: center;
   margin: 0;
 }
+
+/* ============================================================
+   DROPDOWN DE CONFIRMAÇÃO DE PRESENÇA
+   ============================================================ */
+
+/*
+  Layout em linha: select ocupa todo o espaço disponível,
+  botão fica fixo à direita. Em mobile empilha verticalmente.
+*/
+.rsvp-dropdown-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.rsvp-select {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #1f2937;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.rsvp-select:focus {
+  outline: none;
+  border-color: #1f3d2b;
+}
+
+.rsvp-accordion-confirm-btn {
+  white-space: nowrap;
+  padding: 12px 20px;
+  background: #1f3d2b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.rsvp-accordion-confirm-btn:hover {
+  background: #2f5d42;
+}
+
+@media (max-width: 480px) {
+  .rsvp-dropdown-row {
+    flex-direction: column;
+  }
+  .rsvp-accordion-confirm-btn {
+    width: 100%;
+  }
+}
