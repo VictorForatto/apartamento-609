@@ -482,3 +482,290 @@ body::after {
     height: 38px;
   }
 }
+
+/* ============================================================
+   SEÇÃO DE CONFIRMAÇÃO DE PRESENÇA (RSVP)
+   Segue a mesma linguagem visual da .event-section:
+   card branco, borda suave, sombra leve.
+   ============================================================ */
+.rsvp-section {
+  margin-top: 60px;
+  padding: 32px 28px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.rsvp-title {
+  text-align: center;
+  color: #1f3d2b;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.rsvp-subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 15px;
+  margin-bottom: 18px;
+}
+
+/* Contador de confirmados — mesmo estilo do gifts-counter */
+.rsvp-contador {
+  text-align: center;
+  font-size: 14px;
+  color: #4b7a5e;
+  margin: 0 0 20px;
+  padding: 10px 16px;
+  background: #eef2eb;
+  border-radius: 8px;
+  border: 1px solid #dbe4d8;
+}
+
+/*
+  Formulário em linha: input ocupa todo o espaço disponível
+  e o botão fica fixo à direita.
+  Em telas pequenas (< 480px) empilha verticalmente.
+*/
+.rsvp-form {
+  display: flex;
+  gap: 12px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.rsvp-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  font-family: inherit;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.rsvp-input:focus {
+  outline: none;
+  border-color: #1f3d2b;
+}
+
+.rsvp-btn {
+  white-space: nowrap;
+  padding: 12px 20px;
+  background: #1f3d2b;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.rsvp-btn:hover {
+  background: #2f5d42;
+}
+
+.rsvp-btn:disabled {
+  background: #6b7280;
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+
+@media (max-width: 480px) {
+  .rsvp-form {
+    flex-direction: column;
+  }
+
+  .rsvp-btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   ACCORDION DE CONFIRMAÇÃO DE PRESENÇA
+   ============================================================ */
+
+/* Botão que abre/fecha a lista — alinhado ao centro da seção */
+.rsvp-accordion {
+  margin-top: 20px;
+}
+
+.rsvp-accordion-btn {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 13px 20px;
+  background: #1f3d2b;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: center;
+}
+
+.rsvp-accordion-btn:hover {
+  background: #2f5d42;
+}
+
+/*
+  O ícone ▾ é adicionado via ::after e rotaciona 180°
+  quando o botão está aberto — sinaliza visualmente o estado.
+*/
+.rsvp-accordion-btn::after {
+  content: " be";
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.rsvp-accordion-btn--open::after {
+  transform: rotate(180deg);
+}
+
+/*
+  Corpo do accordion — animação via max-height.
+  max-height: 0 + overflow: hidden = fechado e invisível.
+  max-height: 9999px = aberto (valor alto garante que qualquer
+  lista caiba, independente do número de convidados).
+*/
+.rsvp-accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.rsvp-accordion-body--open {
+  max-height: 9999px;
+}
+
+.rsvp-accordion-hint {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin: 18px 0 12px;
+  font-style: italic;
+}
+
+.rsvp-loading {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+/* ============================================================
+   ITENS DA LISTA DE CONVIDADOS
+   Cada convidado é uma linha clicável (se pendente)
+   ou marcada (se confirmada).
+   ============================================================ */
+.rsvp-guest-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.rsvp-guest-item:hover {
+  background: #f0f7f2;
+  border-color: #a3c4a8;
+}
+
+/* Item já confirmado — visual diferente, não clicável */
+.rsvp-guest-item--confirmed {
+  background: #f0f7f2;
+  border-color: #a3c4a8;
+  cursor: default;
+  opacity: 0.85;
+}
+
+.rsvp-guest-item--confirmed:hover {
+  background: #f0f7f2;
+  border-color: #a3c4a8;
+}
+
+.rsvp-guest-name {
+  font-size: 15px;
+  color: #1f2937;
+}
+
+/* Nome riscado nos confirmados */
+.rsvp-guest-item--confirmed .rsvp-guest-name {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+.rsvp-guest-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f3d2b;
+  background: #eef2eb;
+  border: 1px solid #dbe4d8;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.rsvp-guest-action {
+  font-size: 13px;
+  color: #1f3d2b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Hint dentro do modal de presença */
+.rsvp-modal-hint {
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  margin: -8px 0 16px;
+}
+
+/* ============================================================
+   INTRODUÇÃO DA LISTA DE PRESENTES
+   ============================================================ */
+.gifts-intro {
+  margin-top: 60px;
+  padding: 32px 28px;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.gifts-intro-title {
+  text-align: center;
+  color: #1f3d2b;
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.gifts-intro-steps {
+  padding-left: 20px;
+  margin: 12px 0 18px;
+}
+
+.gifts-intro-steps li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.gifts-intro-note {
+  font-size: 13px;
+  font-style: italic;
+  color: #6b7280;
+  text-align: center;
+  margin: 0;
+}
