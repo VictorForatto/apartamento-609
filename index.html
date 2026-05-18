@@ -33,9 +33,14 @@
     </p>
     <p>
       Com carinho,<br>
-      <strong>Gabriela & Victor</strong>
+      <strong>Gabriela &amp; Victor</strong>
     </p>
 
+    <!-- ========================================================
+         SEÇÃO DO CHÁ + CONFIRMAÇÃO DE PRESENÇA
+         A lista de convidados fica dentro de um accordion
+         que expande ao clicar em "Confirmar presença".
+         ======================================================== -->
     <section class="event-section">
       <h3 class="event-title">🥂 Sobre o nosso chá de casa nova</h3>
       <ul class="event-info">
@@ -48,38 +53,70 @@
       <p class="event-note">
         Esperamos vocês para celebrar esse novo capítulo com a gente 💚
       </p>
+
+      <!-- Botão que expande/recolhe a lista de convidados -->
+      <div class="rsvp-accordion">
+        <button class="rsvp-accordion-btn" onclick="toggleListaConvidados()" id="rsvp-accordion-btn">
+          💚 Confirmar presença
+        </button>
+
+        <!--
+          Lista de convidados — carregada dinamicamente pelo JS.
+          Começa fechada (max-height: 0) e abre com transição CSS
+          ao adicionar a classe .rsvp-accordion-body--open.
+        -->
+        <div class="rsvp-accordion-body" id="rsvp-accordion-body">
+          <p class="rsvp-accordion-hint">
+            Encontre seu nome na lista e clique para confirmar sua presença ✨
+          </p>
+          <div id="lista-convidados">
+            <p class="rsvp-loading">Carregando lista...</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <h3 class="gifts-title">🍃 Lista de presentes</h3>
+    <!-- ========================================================
+         INTRODUÇÃO DA LISTA DE PRESENTES
+         Texto explicando como funciona o site — sem transações,
+         só intenção de presente + e-mail com referências.
+         ======================================================== -->
+    <section class="gifts-intro">
+      <h3 class="gifts-intro-title">🎁 Lista de presentes</h3>
+      <p>
+        Preparamos uma lista com itens que vão nos ajudar a montar o nosso novo lar. Mas antes de tudo, queremos ser bem transparentes sobre como isso funciona:
+      </p>
+      <p>
+        <strong>Este site não realiza nenhuma transação financeira.</strong> Não há pagamento, carrinho ou checkout aqui.
+      </p>
+      <p>
+        O passo a passo é bem simples:
+      </p>
+      <ol class="gifts-intro-steps">
+        <li>Navegue pela lista e escolha o presente que deseja nos dar 😉</li>
+        <li>Clique em <strong>"Selecionar presente"</strong> e preencha seu nome e e-mail</li>
+        <li>No seu e-mail você receberá as referências que pensamos, os valores estimados e as formas de nos presentear</li>
+        <li>Pronto! Não tem segredo 💚</li>
+      </ol>
+      <p class="gifts-intro-note">
+        Cada item mostra quantas unidades ainda estão disponíveis — assim evitamos duplicatas e garantimos que todos que queiram presentear consigam.
+      </p>
+    </section>
+
     <div id="lista-presentes"></div>
 
   </div>
 
-  <!-- ✅ FIX 1: MODAL agora dentro do <body>, no final -->
-  <!--
-    Por que isso importa?
-    O HTML tem regras de onde cada elemento pode aparecer.
-    <div> só é válido dentro do <body>. Colocá-lo fora fazia o
-    navegador "consertar" silenciosamente o DOM de formas
-    imprevisíveis, podendo quebrar em browsers mais rígidos.
-  -->
+  <!-- Modal de reserva de presente -->
   <div id="modal-overlay" class="modal-overlay">
     <div class="modal-content">
       <h3 id="modal-title"></h3>
-
       <input id="nome" type="text" placeholder="Seu nome completo" />
       <input id="email" type="email" placeholder="Seu principal e-mail" />
       <div id="quantidade-wrapper">
-        <input
-          id="quantidade"
-          type="number"
-          min="1"
-          value="1"
-          placeholder="Quantidade"
-        />
+        <input id="quantidade" type="number" min="1" value="1" placeholder="Quantidade" />
       </div>
       <textarea id="mensagem" placeholder="Mensagem para o casal (opcional)"></textarea>
-
       <div class="modal-actions">
         <button class="confirm-btn" onclick="confirmarReserva()">Confirmar</button>
         <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
@@ -87,22 +124,25 @@
     </div>
   </div>
 
-  <!-- Toast de confirmação -->
+  <!-- Modal de confirmação de presença -->
   <!--
-    Em vez de alert() (que bloqueia a thread e é feio),
-    usamos um elemento flutuante que aparece, fica visível
-    por 3 segundos e some com uma transição CSS suave.
+    Modal separado do modal de reserva.
+    Abre quando o convidado clica no próprio nome na lista.
+    Pede apenas o e-mail para envio da confirmação.
   -->
-  <div id="toast" class="toast"></div>
+  <div id="rsvp-modal-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <h3 id="rsvp-modal-title"></h3>
+      <p class="rsvp-modal-hint">Informe seu e-mail para receber a confirmação 💚</p>
+      <input id="rsvp-email" type="email" placeholder="Seu e-mail" />
+      <div class="modal-actions">
+        <button class="confirm-btn" onclick="confirmarPresenca()">Confirmar presença</button>
+        <button class="cancel-btn" onclick="fecharModalRsvp()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-  <!-- ✅ FIX 1: <script> também no final do <body> -->
-  <!--
-    Carregar o script antes do </body> garante que todo o DOM
-    já existe quando o JS começa a rodar. Na posição anterior
-    (dentro do <head>), o script executava antes do body existir,
-    o que só funcionava porque o DOMContentLoaded protegia — mas
-    é uma prática ruim e desnecessariamente frágil.
-  -->
+  <div id="toast" class="toast"></div>
   <script src="script.js"></script>
 </body>
 </html>
