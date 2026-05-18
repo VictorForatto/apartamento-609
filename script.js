@@ -40,23 +40,18 @@ function showToast(message, type = "success", duration = 3500) {
 }
 
 // ============================================================
-// LISTA DE CONVIDADOS (RSVP)
+// CONFIRMAÇÃO DE PRESENÇA — DROPDOWN (RSVP)
 // ============================================================
+
+let convidadosCarregados = false;
 
 /*
   toggleListaConvidados():
-  Controla o accordion da lista de convidados.
-  Na primeira abertura, dispara carregarConvidados() para
-  buscar do banco. Nas seguintes, só anima — sem nova requisição.
-
-  Por que max-height para animar?
-  CSS não consegue animar height: auto → valor fixo.
-  A técnica é usar max-height: 0 (fechado) → max-height: 9999px
-  (aberto). O valor alto garante que qualquer conteúdo caiba.
-  A transição visual é suave porque o conteúdo cresce de cima.
+  Abre/fecha o accordion. Na primeira abertura busca os
+  convidados do banco e popula o <select>.
+  Após confirmação bem-sucedida, chamamos fecharAccordion()
+  para recolher automaticamente.
 */
-let convidadosCarregados = false;
-
 function toggleListaConvidados() {
   const body = document.getElementById("rsvp-accordion-body");
   const btn  = document.getElementById("rsvp-accordion-btn");
@@ -70,27 +65,32 @@ function toggleListaConvidados() {
   } else {
     body.classList.add("rsvp-accordion-body--open");
     btn.classList.add("rsvp-accordion-btn--open");
-
-    // Carrega apenas na primeira abertura
     if (!convidadosCarregados) {
-      carregarConvidados();
+      carregarConvidadosNoSelect();
       convidadosCarregados = true;
     }
   }
 }
 
-/*
-  carregarConvidados():
-  Busca todos os convidados ordenados por nome.
-  Monta a lista com status visual de cada um:
-  - Confirmado  → nome riscado + badge verde "Confirmado ✓"
-  - Pendente    → clicável, abre modal para confirmar
-*/
-async function carregarConvidados() {
-  const lista = document.getElementById("lista-convidados");
-  if (!lista) return;
+function fecharAccordion() {
+  const body = document.getElementById("rsvp-accordion-body");
+  const btn  = document.getElementById("rsvp-accordion-btn");
+  if (body) body.classList.remove("rsvp-accordion-body--open");
+  if (btn)  btn.classList.remove("rsvp-accordion-btn--open");
+}
 
-  lista.innerHTML = `<p class="rsvp-loading">Carregando lista...</p>`;
+/*
+  carregarConvidadosNoSelect():
+  Busca convidados do banco e popula o <select>.
+  - Pendentes aparecem normalmente como opções selecionáveis
+  - Confirmados aparecem com "(já confirmado)" e ficam desabilitados
+  - Um option vazio no topo serve como placeholder
+*/
+async function carregarConvidadosNoSelect() {
+  const select = document.getElementById("rsvp-select");
+  if (!select) return;
+
+  select.innerHTML = `<option value="">Carregando...</option>`;
 
   try {
     const response = await fetch(
@@ -103,49 +103,55 @@ async function carregarConvidados() {
       }
     );
 
-    if (!response.ok) {
-      lista.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar lista de convidados.</p>`;
-      return;
-    }
+    if (!response.ok) throw new Error("Erro ao buscar convidados");
 
     const convidados = await response.json();
-    lista.innerHTML = "";
+
+    // Option vazio como placeholder — valor "" impede confirmação acidental
+    select.innerHTML = `<option value="">Selecione seu nome...</option>`;
 
     convidados.forEach((c) => {
-      const item = document.createElement("div");
-      item.className = `rsvp-guest-item ${c.confirmed ? "rsvp-guest-item--confirmed" : ""}`;
+      const opt = document.createElement("option");
+      opt.value = c.id;
 
       if (c.confirmed) {
-        // Confirmado: exibe com badge, não é clicável
-        item.innerHTML = `
-          <span class="rsvp-guest-name">${c.name}</span>
-          <span class="rsvp-guest-badge">Confirmado ✓</span>
-        `;
+        // Desabilitado para quem já confirmou
+        opt.textContent = `${c.name} ✓ (já confirmado)`;
+        opt.disabled = true;
+        opt.style.color = "#6b7280";
       } else {
-        // Pendente: clicável, abre modal de confirmação
-        item.innerHTML = `
-          <span class="rsvp-guest-name">${c.name}</span>
-          <span class="rsvp-guest-action">Confirmar →</span>
-        `;
-        item.addEventListener("click", () => {
-          abrirModalRsvp(c.id, c.name);
-        });
+        opt.textContent = c.name;
       }
 
-      lista.appendChild(item);
+      select.appendChild(opt);
     });
 
   } catch (e) {
     console.error(e);
-    lista.innerHTML = `<p style="color:#b91c1c;">Falha ao carregar convidados (ver Console).</p>`;
+    select.innerHTML = `<option value="">Erro ao carregar — tente reabrir</option>`;
+    convidadosCarregados = false; // permite tentar novamente
   }
 }
 
 /*
-  abrirModalRsvp(id, nome):
-  Armazena o ID do convidado selecionado em rsvpSelecionado
-  e abre o modal pedindo o e-mail.
+  abrirModalRsvpDoSelect():
+  Lê o valor selecionado no <select> e abre o modal de e-mail.
+  Validação: impede abrir o modal se nenhum nome foi escolhido.
 */
+function abrirModalRsvpDoSelect() {
+  const select = document.getElementById("rsvp-select");
+  if (!select) return;
+
+  const id   = select.value;
+  const nome = select.options[select.selectedIndex]?.text;
+
+  if (!id) {
+    return showToast("Selecione seu nome antes de confirmar.", "error");
+  }
+
+  abrirModalRsvp(id, nome);
+}
+
 function abrirModalRsvp(id, nome) {
   rsvpSelecionado = id;
 
@@ -165,9 +171,10 @@ function fecharModalRsvp() {
   rsvpSelecionado = null;
 }
 
-window.toggleListaConvidados = toggleListaConvidados;
-window.abrirModalRsvp        = abrirModalRsvp;
-window.fecharModalRsvp       = fecharModalRsvp;
+window.toggleListaConvidados   = toggleListaConvidados;
+window.abrirModalRsvpDoSelect  = abrirModalRsvpDoSelect;
+window.abrirModalRsvp          = abrirModalRsvp;
+window.fecharModalRsvp         = fecharModalRsvp;
 
 /*
   confirmarPresenca():
@@ -222,12 +229,11 @@ async function confirmarPresenca() {
     const rsvpId = await parseRpcReturn(resp);
 
     fecharModalRsvp();
+    fecharAccordion();  // fecha o accordion automaticamente após confirmar
     showToast("Presença confirmada! Até lá 🥂💚", "success", 4500);
 
-    // Atualiza o item na lista sem recarregar tudo do banco
-    // Encontra o item pelo ID armazenado no dataset e marca como confirmado
-    convidadosCarregados = false; // força recarga na próxima abertura
-    carregarConvidados();         // atualiza a lista visualmente agora
+    // Força recarga do select na próxima abertura para refletir o novo confirmado
+    convidadosCarregados = false;
 
     // Dispara e-mail — fire and forget
     if (rsvpId) {
