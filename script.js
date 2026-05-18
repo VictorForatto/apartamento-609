@@ -119,13 +119,13 @@ async function carregarConvidados() {
         // Confirmado: exibe com badge, não é clicável
         item.innerHTML = `
           <span class="rsvp-guest-name">${c.name}</span>
-          <span class="rsvp-guest-badge">Confirmado \u2713</span>
+          <span class="rsvp-guest-badge">Confirmado ✓</span>
         `;
       } else {
         // Pendente: clicável, abre modal de confirmação
         item.innerHTML = `
           <span class="rsvp-guest-name">${c.name}</span>
-          <span class="rsvp-guest-action">Confirmar \u2192</span>
+          <span class="rsvp-guest-action">Confirmar →</span>
         `;
         item.addEventListener("click", () => {
           abrirModalRsvp(c.id, c.name);
@@ -150,7 +150,7 @@ function abrirModalRsvp(id, nome) {
   rsvpSelecionado = id;
 
   const title = document.getElementById("rsvp-modal-title");
-  if (title) title.innerText = `Ol\u00e1, ${nome}! \U0001f49a`;
+  if (title) title.innerText = `Olá, ${nome}! 💚`;
 
   const emailInput = document.getElementById("rsvp-email");
   if (emailInput) emailInput.value = "";
@@ -180,7 +180,7 @@ async function confirmarPresenca() {
   const email = (document.getElementById("rsvp-email")?.value || "").trim();
 
   if (!email.includes("@")) {
-    return showToast("Por favor, informe um e-mail v\u00e1lido.", "error");
+    return showToast("Por favor, informe um e-mail válido.", "error");
   }
 
   if (!rsvpSelecionado) {
@@ -208,11 +208,11 @@ async function confirmarPresenca() {
     });
 
     if (!resp.ok) {
-      let msg = "N\u00e3o foi poss\u00edvel confirmar presen\u00e7a.";
+      let msg = "Não foi possível confirmar presença.";
       try {
         const errText = await resp.text();
-        if (errText.includes("Presen\u00e7a j\u00e1 confirmada")) {
-          msg = "Esta presen\u00e7a j\u00e1 foi confirmada anteriormente \U0001f49a";
+        if (errText.includes("Presença já confirmada")) {
+          msg = "Esta presença já foi confirmada anteriormente 💚";
         }
       } catch (_) {}
       showToast(msg, "error");
@@ -222,7 +222,7 @@ async function confirmarPresenca() {
     const rsvpId = await parseRpcReturn(resp);
 
     fecharModalRsvp();
-    showToast("Presen\u00e7a confirmada! Até l\u00e1 \U0001f942\U0001f49a", "success", 4500);
+    showToast("Presença confirmada! Até lá 🥂💚", "success", 4500);
 
     // Atualiza o item na lista sem recarregar tudo do banco
     // Encontra o item pelo ID armazenado no dataset e marca como confirmado
@@ -242,17 +242,17 @@ async function confirmarPresenca() {
           body: JSON.stringify({ rsvp_id: rsvpId })
         });
       } catch (e) {
-        console.warn("Falha ao enviar e-mail de presen\u00e7a:", e);
+        console.warn("Falha ao enviar e-mail de presença:", e);
       }
     }
 
   } catch (e) {
     console.error(e);
-    showToast("Erro ao confirmar presen\u00e7a. Tente novamente.", "error");
+    showToast("Erro ao confirmar presença. Tente novamente.", "error");
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.textContent = "Confirmar presen\u00e7a";
+      btn.textContent = "Confirmar presença";
     }
   }
 }
@@ -298,7 +298,7 @@ async function carregarPresentes() {
 
     const contador = document.createElement("p");
     contador.className = "gifts-counter";
-    contador.innerHTML = `\U0001f49a <strong>${reservadasGeral}</strong> de <strong>${totalGeral}</strong> presentes j\u00e1 reservados`;
+    contador.innerHTML = `💚 <strong>${reservadasGeral}</strong> de <strong>${totalGeral}</strong> presentes já reservados`;
     lista.appendChild(contador);
 
     const tudoReservado = presentes.every(
@@ -309,9 +309,9 @@ async function carregarPresentes() {
       const vazio = document.createElement("div");
       vazio.className = "gifts-empty";
       vazio.innerHTML = `
-        <p class="gifts-empty-emoji">\U0001f389</p>
+        <p class="gifts-empty-emoji">🎉</p>
         <h4>Todos os presentes foram reservados!</h4>
-        <p>Ficamos sem palavras de tanta gratid\u00e3o.<br>Cada gesto de carinho de voc\u00eas significa muito para n\u00f3s \U0001f90d</p>
+        <p>Ficamos sem palavras de tanta gratidão.<br>Cada gesto de carinho de vocês significa muito para nós 🤍</p>
       `;
       lista.appendChild(vazio);
       return;
@@ -335,7 +335,7 @@ async function carregarPresentes() {
         ? `<div class="gift-links">
              ${links.map((url, i) =>
                `<a class="gift-link-btn" href="${url}" target="_blank" rel="noopener noreferrer">
-                  Ver sugest\u00e3o de produto${links.length > 1 ? ` ${i + 1}` : ""} \U0001f517
+                  Ver sugestão de produto${links.length > 1 ? ` ${i + 1}` : ""} 🔗
                 </a>`
              ).join("")}
            </div>`
@@ -348,18 +348,18 @@ async function carregarPresentes() {
         <div class="gift-top">
           <h4 class="gift-name">${presente.name}</h4>
           ${presente.price_range
-            ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de pre\u00e7o:</span> ${presente.price_range}</span>`
+            ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
             : ""}
         </div>
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
         ${linksHTML}
-        <p class="gift-status"><strong>Dispon\u00edvel:</strong> ${disponiveis} de ${total}</p>
-        ${!isDisponivel ? `<p class="gift-note">Obrigado! Este item j\u00e1 foi reservado \U0001f90d</p>` : ""}
+        <p class="gift-status"><strong>Disponível:</strong> ${disponiveis} de ${total}</p>
+        ${!isDisponivel ? `<p class="gift-note">Obrigado! Este item já foi reservado 🤍</p>` : ""}
         ${disponiveis > 0
           ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
                Selecionar presente
              </button>`
-          : `<p class="gift-note">Todas as unidades j\u00e1 foram reservadas \U0001f90d</p>`}
+          : `<p class="gift-note">Todas as unidades já foram reservadas 🤍</p>`}
       `;
 
       lista.appendChild(div);
@@ -378,7 +378,7 @@ async function abrirFormulario(id, nome) {
   giftSelecionado = id;
 
   const title = document.getElementById("modal-title");
-  if (title) title.innerText = `Voc\u00ea ir\u00e1 nos presentear com um(a): ${nome}`;
+  if (title) title.innerText = `Você irá nos presentear com um(a): ${nome}`;
 
   try {
     const response = await fetch(
@@ -399,7 +399,7 @@ async function abrirFormulario(id, nome) {
     const quantidadeWrapper = document.getElementById("quantidade-wrapper");
     if (quantidadeWrapper) quantidadeWrapper.style.display = total <= 1 ? "none" : "block";
 
-  } catch (e) { console.warn("N\u00e3o foi poss\u00edvel carregar quantidade:", e); }
+  } catch (e) { console.warn("Não foi possível carregar quantidade:", e); }
 
   const overlay = document.getElementById("modal-overlay");
   if (overlay) overlay.style.display = "flex";
@@ -422,10 +422,10 @@ async function confirmarReserva() {
   const mensagem  = (document.getElementById("mensagem")?.value || "").trim();
   const quantidade = parseInt(document.getElementById("quantidade")?.value || "1", 10);
 
-  if (!quantidade || quantidade < 1) return showToast("Informe uma quantidade v\u00e1lida.", "error");
+  if (!quantidade || quantidade < 1) return showToast("Informe uma quantidade válida.", "error");
   if (!giftSelecionado)              return showToast("Nenhum presente selecionado.", "error");
   if (nome.length < 2)               return showToast("Por favor, informe seu nome.", "error");
-  if (!email.includes("@"))          return showToast("Por favor, informe um e-mail v\u00e1lido.", "error");
+  if (!email.includes("@"))          return showToast("Por favor, informe um e-mail válido.", "error");
 
   const confirmBtn = document.querySelector(".confirm-btn");
   if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = "Aguarde..."; }
@@ -448,13 +448,13 @@ async function confirmarReserva() {
     });
 
     if (!resp.ok) {
-      let errorMessage = "N\u00e3o foi poss\u00edvel realizar a reserva.";
+      let errorMessage = "Não foi possível realizar a reserva.";
       try {
         const errText = await resp.text();
-        if (errText.includes("Quantidade solicitada maior que o dispon\u00edvel"))
-          errorMessage = "A quantidade escolhida \u00e9 maior do que a dispon\u00edvel \U0001f90d Escolha uma quantidade menor.";
-        else if (errText.includes("Presente j\u00e1 est\u00e1 totalmente reservado"))
-          errorMessage = "Este presente j\u00e1 foi totalmente reservado \U0001f90d";
+        if (errText.includes("Quantidade solicitada maior que o disponível"))
+          errorMessage = "A quantidade escolhida é maior do que a disponível 🤍 Escolha uma quantidade menor.";
+        else if (errText.includes("Presente já está totalmente reservado"))
+          errorMessage = "Este presente já foi totalmente reservado 🤍";
       } catch (_) {}
       showToast(errorMessage, "error");
       return;
@@ -467,7 +467,7 @@ async function confirmarReserva() {
     document.getElementById("email").value    = "";
     document.getElementById("mensagem").value = "";
 
-    showToast("Reserva registrada! \U0001f49a Obrigado pelo carinho!", "success");
+    showToast("Reserva registrada! 💚 Obrigado pelo carinho!", "success");
     carregarPresentes();
 
     if (reservationId) {
