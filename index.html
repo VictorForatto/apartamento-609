@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Gabriela & Victor | Apartamento 609</title>
+  <title>Gabriela &amp; Victor | Apartamento 609</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -10,7 +10,7 @@
 
     <header class="hero">
       <img src="casal1.jpeg" alt="Foto do casal" />
-      <h1>Gabriela Abrantes & Victor Forato</h1>
+      <h1>Gabriela Abrantes &amp; Victor Forato</h1>
       <p class="subtitle">Nosso novo lar 💚</p>
     </header>
 
@@ -36,11 +36,6 @@
       <strong>Gabriela &amp; Victor</strong>
     </p>
 
-    <!-- ========================================================
-         SEÇÃO DO CHÁ + CONFIRMAÇÃO DE PRESENÇA
-         A lista de convidados fica dentro de um accordion
-         que expande ao clicar em "Confirmar presença".
-         ======================================================== -->
     <section class="event-section">
       <h3 class="event-title">🥂 Sobre o nosso chá de casa nova</h3>
       <ul class="event-info">
@@ -54,33 +49,26 @@
         Esperamos vocês para celebrar esse novo capítulo com a gente 💚
       </p>
 
-      <!-- Botão que expande/recolhe a lista de convidados -->
       <div class="rsvp-accordion">
         <button class="rsvp-accordion-btn" onclick="toggleListaConvidados()" id="rsvp-accordion-btn">
           💚 Confirmar presença
         </button>
-
-        <!--
-          Lista de convidados — carregada dinamicamente pelo JS.
-          Começa fechada (max-height: 0) e abre com transição CSS
-          ao adicionar a classe .rsvp-accordion-body--open.
-        -->
         <div class="rsvp-accordion-body" id="rsvp-accordion-body">
           <p class="rsvp-accordion-hint">
-            Encontre seu nome na lista e clique para confirmar sua presença ✨
+            Selecione seu nome abaixo e confirme sua presença ✨
           </p>
-          <div id="lista-convidados">
-            <p class="rsvp-loading">Carregando lista...</p>
+          <div class="rsvp-dropdown-row">
+            <select id="rsvp-select" class="rsvp-select">
+              <option value="">Carregando convidados...</option>
+            </select>
+            <button class="rsvp-accordion-confirm-btn" onclick="abrirModalRsvpDoSelect()">
+              Confirmar presença 💚
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ========================================================
-         INTRODUÇÃO DA LISTA DE PRESENTES
-         Texto explicando como funciona o site — sem transações,
-         só intenção de presente + e-mail com referências.
-         ======================================================== -->
     <section class="gifts-intro">
       <h3 class="gifts-intro-title">🎁 Lista de presentes</h3>
       <p>
@@ -89,12 +77,10 @@
       <p>
         <strong>Este site não realiza nenhuma transação financeira.</strong> Não há pagamento, carrinho ou checkout aqui.
       </p>
-      <p>
-        O passo a passo é bem simples:
-      </p>
+      <p>O passo a passo é bem simples:</p>
       <ol class="gifts-intro-steps">
         <li>Navegue pela lista e escolha o presente que deseja nos dar 😉</li>
-        <li>Clique em <strong>"Selecionar presente"</strong> e preencha seu nome e e-mail</li>
+        <li>Clique em <strong>“Selecionar presente”</strong> e preencha seu nome e e-mail</li>
         <li>No seu e-mail você receberá as referências que pensamos, os valores estimados e as formas de nos presentear</li>
         <li>Pronto! Não tem segredo 💚</li>
       </ol>
@@ -125,11 +111,6 @@
   </div>
 
   <!-- Modal de confirmação de presença -->
-  <!--
-    Modal separado do modal de reserva.
-    Abre quando o convidado clica no próprio nome na lista.
-    Pede apenas o e-mail para envio da confirmação.
-  -->
   <div id="rsvp-modal-overlay" class="modal-overlay">
     <div class="modal-content">
       <h3 id="rsvp-modal-title"></h3>
