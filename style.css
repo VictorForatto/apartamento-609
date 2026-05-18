@@ -619,7 +619,7 @@ body::after {
   quando o botão está aberto — sinaliza visualmente o estado.
 */
 .rsvp-accordion-btn::after {
-  content: " be";
+  content: " \25be";
   display: inline-block;
   transition: transform 0.3s ease;
 }
