@@ -2,13 +2,13 @@ const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5b3BudGRxbG12aXZsY2Zzdm9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Mjc2MTYsImV4cCI6MjA5MjAwMzYxNn0.HuSBNc9X-G1K2ZUqJz71Gd8JzFS50fUFrqu8OmvYTC4";
 
 let giftSelecionado = null;
+let rsvpSelecionado  = null; // ID do convidado selecionado na lista
 
 // ---------- UTIL ----------
 function escapeApostrophe(str = "") {
   return str.replace(/'/g, "\\'");
 }
 
-// Helper para parsear retorno do RPC (às vezes vem string, às vezes objeto)
 async function parseRpcReturn(resp) {
   const data = await resp.json();
   if (typeof data === "string") return data;
@@ -21,28 +21,14 @@ async function parseRpcReturn(resp) {
 }
 
 // ---------- TOAST ----------
-/*
-  showToast() substitui todos os alert() do projeto.
-
-  Como funciona:
-  1. Pega o elemento #toast (já existe no HTML, oculto por padrão via CSS)
-  2. Define o texto e o tipo visual (success = verde, error = vermelho)
-  3. Adiciona a classe CSS "toast--visible" que dispara a animação de entrada
-  4. Após `duration` ms, remove a classe — o CSS cuida da saída suavemente
-  5. O clearTimeout garante que chamadas rápidas em sequência não se sobreponham
-*/
 let toastTimer = null;
 
 function showToast(message, type = "success", duration = 3500) {
   const toast = document.getElementById("toast");
   if (!toast) return;
 
-  // Cancela qualquer toast anterior que ainda esteja na tela
   clearTimeout(toastTimer);
   toast.classList.remove("toast--visible", "toast--success", "toast--error");
-
-  // Força reflow para reiniciar a animação caso o toast já estivesse visível.
-  // Sem isso, remover e adicionar a classe no mesmo frame não reinicia a transição.
   void toast.offsetWidth;
 
   toast.textContent = message;
@@ -53,7 +39,229 @@ function showToast(message, type = "success", duration = 3500) {
   }, duration);
 }
 
-// ---------- LISTA PRESENTES ----------
+// ============================================================
+// LISTA DE CONVIDADOS (RSVP)
+// ============================================================
+
+/*
+  toggleListaConvidados():
+  Controla o accordion da lista de convidados.
+  Na primeira abertura, dispara carregarConvidados() para
+  buscar do banco. Nas seguintes, só anima — sem nova requisição.
+
+  Por que max-height para animar?
+  CSS não consegue animar height: auto → valor fixo.
+  A técnica é usar max-height: 0 (fechado) → max-height: 9999px
+  (aberto). O valor alto garante que qualquer conteúdo caiba.
+  A transição visual é suave porque o conteúdo cresce de cima.
+*/
+let convidadosCarregados = false;
+
+function toggleListaConvidados() {
+  const body = document.getElementById("rsvp-accordion-body");
+  const btn  = document.getElementById("rsvp-accordion-btn");
+  if (!body || !btn) return;
+
+  const isOpen = body.classList.contains("rsvp-accordion-body--open");
+
+  if (isOpen) {
+    body.classList.remove("rsvp-accordion-body--open");
+    btn.classList.remove("rsvp-accordion-btn--open");
+  } else {
+    body.classList.add("rsvp-accordion-body--open");
+    btn.classList.add("rsvp-accordion-btn--open");
+
+    // Carrega apenas na primeira abertura
+    if (!convidadosCarregados) {
+      carregarConvidados();
+      convidadosCarregados = true;
+    }
+  }
+}
+
+/*
+  carregarConvidados():
+  Busca todos os convidados ordenados por nome.
+  Monta a lista com status visual de cada um:
+  - Confirmado  → nome riscado + badge verde "Confirmado ✓"
+  - Pendente    → clicável, abre modal para confirmar
+*/
+async function carregarConvidados() {
+  const lista = document.getElementById("lista-convidados");
+  if (!lista) return;
+
+  lista.innerHTML = `<p class="rsvp-loading">Carregando lista...</p>`;
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/rsvp?select=id,name,confirmed&order=name.asc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      lista.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar lista de convidados.</p>`;
+      return;
+    }
+
+    const convidados = await response.json();
+    lista.innerHTML = "";
+
+    convidados.forEach((c) => {
+      const item = document.createElement("div");
+      item.className = `rsvp-guest-item ${c.confirmed ? "rsvp-guest-item--confirmed" : ""}`;
+
+      if (c.confirmed) {
+        // Confirmado: exibe com badge, não é clicável
+        item.innerHTML = `
+          <span class="rsvp-guest-name">${c.name}</span>
+          <span class="rsvp-guest-badge">Confirmado \u2713</span>
+        `;
+      } else {
+        // Pendente: clicável, abre modal de confirmação
+        item.innerHTML = `
+          <span class="rsvp-guest-name">${c.name}</span>
+          <span class="rsvp-guest-action">Confirmar \u2192</span>
+        `;
+        item.addEventListener("click", () => {
+          abrirModalRsvp(c.id, c.name);
+        });
+      }
+
+      lista.appendChild(item);
+    });
+
+  } catch (e) {
+    console.error(e);
+    lista.innerHTML = `<p style="color:#b91c1c;">Falha ao carregar convidados (ver Console).</p>`;
+  }
+}
+
+/*
+  abrirModalRsvp(id, nome):
+  Armazena o ID do convidado selecionado em rsvpSelecionado
+  e abre o modal pedindo o e-mail.
+*/
+function abrirModalRsvp(id, nome) {
+  rsvpSelecionado = id;
+
+  const title = document.getElementById("rsvp-modal-title");
+  if (title) title.innerText = `Ol\u00e1, ${nome}! \U0001f49a`;
+
+  const emailInput = document.getElementById("rsvp-email");
+  if (emailInput) emailInput.value = "";
+
+  const overlay = document.getElementById("rsvp-modal-overlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function fecharModalRsvp() {
+  const overlay = document.getElementById("rsvp-modal-overlay");
+  if (overlay) overlay.style.display = "none";
+  rsvpSelecionado = null;
+}
+
+window.toggleListaConvidados = toggleListaConvidados;
+window.abrirModalRsvp        = abrirModalRsvp;
+window.fecharModalRsvp       = fecharModalRsvp;
+
+/*
+  confirmarPresenca():
+  - Valida o e-mail informado
+  - Chama o RPC confirm_rsvp(p_id, p_email) no Supabase
+  - Em caso de sucesso: fecha modal, atualiza a lista no DOM,
+    exibe toast e dispara e-mail via Edge Function
+*/
+async function confirmarPresenca() {
+  const email = (document.getElementById("rsvp-email")?.value || "").trim();
+
+  if (!email.includes("@")) {
+    return showToast("Por favor, informe um e-mail v\u00e1lido.", "error");
+  }
+
+  if (!rsvpSelecionado) {
+    return showToast("Nenhum convidado selecionado.", "error");
+  }
+
+  const btn = document.querySelector("#rsvp-modal-overlay .confirm-btn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Aguarde...";
+  }
+
+  try {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/confirm_rsvp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`
+      },
+      body: JSON.stringify({
+        p_id:    rsvpSelecionado,
+        p_email: email
+      })
+    });
+
+    if (!resp.ok) {
+      let msg = "N\u00e3o foi poss\u00edvel confirmar presen\u00e7a.";
+      try {
+        const errText = await resp.text();
+        if (errText.includes("Presen\u00e7a j\u00e1 confirmada")) {
+          msg = "Esta presen\u00e7a j\u00e1 foi confirmada anteriormente \U0001f49a";
+        }
+      } catch (_) {}
+      showToast(msg, "error");
+      return;
+    }
+
+    const rsvpId = await parseRpcReturn(resp);
+
+    fecharModalRsvp();
+    showToast("Presen\u00e7a confirmada! Até l\u00e1 \U0001f942\U0001f49a", "success", 4500);
+
+    // Atualiza o item na lista sem recarregar tudo do banco
+    // Encontra o item pelo ID armazenado no dataset e marca como confirmado
+    convidadosCarregados = false; // força recarga na próxima abertura
+    carregarConvidados();         // atualiza a lista visualmente agora
+
+    // Dispara e-mail — fire and forget
+    if (rsvpId) {
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-rsvp-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify({ rsvp_id: rsvpId })
+        });
+      } catch (e) {
+        console.warn("Falha ao enviar e-mail de presen\u00e7a:", e);
+      }
+    }
+
+  } catch (e) {
+    console.error(e);
+    showToast("Erro ao confirmar presen\u00e7a. Tente novamente.", "error");
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Confirmar presen\u00e7a";
+    }
+  }
+}
+
+window.confirmarPresenca = confirmarPresenca;
+
+// ============================================================
+// LISTA DE PRESENTES
+// ============================================================
 async function carregarPresentes() {
   const lista = document.getElementById("lista-presentes");
   if (!lista) return;
@@ -80,15 +288,9 @@ async function carregarPresentes() {
     const presentes = await response.json();
     lista.innerHTML = "";
 
-    // ------------------------------------------------------------------
-    // MELHORIA 4: Contador de progresso
-    // Soma todas as unidades totais e reservadas para exibir o progresso
-    // geral da lista antes dos cards. O reduce() percorre o array uma
-    // única vez acumulando os dois totais simultaneamente.
-    // ------------------------------------------------------------------
     const { totalGeral, reservadasGeral } = presentes.reduce(
       (acc, p) => ({
-        totalGeral: acc.totalGeral + (p.quantity_total ?? 1),
+        totalGeral:     acc.totalGeral     + (p.quantity_total    ?? 1),
         reservadasGeral: acc.reservadasGeral + (p.quantity_reserved ?? 0),
       }),
       { totalGeral: 0, reservadasGeral: 0 }
@@ -96,14 +298,9 @@ async function carregarPresentes() {
 
     const contador = document.createElement("p");
     contador.className = "gifts-counter";
-    contador.innerHTML = `💚 <strong>${reservadasGeral}</strong> de <strong>${totalGeral}</strong> presentes já reservados`;
+    contador.innerHTML = `\U0001f49a <strong>${reservadasGeral}</strong> de <strong>${totalGeral}</strong> presentes j\u00e1 reservados`;
     lista.appendChild(contador);
 
-    // ------------------------------------------------------------------
-    // MELHORIA 5: Lista vazia — card comemorativo
-    // Se todos os presentes foram 100% reservados, exibe uma mensagem
-    // especial em vez de uma lista vazia sem explicação.
-    // ------------------------------------------------------------------
     const tudoReservado = presentes.every(
       (p) => (p.quantity_reserved ?? 0) >= (p.quantity_total ?? 1)
     );
@@ -112,49 +309,37 @@ async function carregarPresentes() {
       const vazio = document.createElement("div");
       vazio.className = "gifts-empty";
       vazio.innerHTML = `
-        <p class="gifts-empty-emoji">🎉</p>
+        <p class="gifts-empty-emoji">\U0001f389</p>
         <h4>Todos os presentes foram reservados!</h4>
-        <p>Ficamos sem palavras de tanta gratidão.<br>Cada gesto de carinho de vocês significa muito para nós 🤍</p>
+        <p>Ficamos sem palavras de tanta gratid\u00e3o.<br>Cada gesto de carinho de voc\u00eas significa muito para n\u00f3s \U0001f90d</p>
       `;
       lista.appendChild(vazio);
       return;
     }
 
     presentes.forEach((presente) => {
-      const total = presente.quantity_total ?? 1;
+      const total      = presente.quantity_total    ?? 1;
       const reservadas = presente.quantity_reserved ?? 0;
       const disponiveis = total - reservadas;
       const isDisponivel = disponiveis > 0;
 
-      // ------------------------------------------------------------------
-      // MELHORIA 1: Links de referência
-      // O banco armazena reference_links como array JSON (string).
-      // Fazemos o parse com segurança — se falhar ou vier vazio, links = [].
-      // Filtramos links que parecem URLs reais (começam com http).
-      // ------------------------------------------------------------------
       let links = [];
       try {
         const parsed = JSON.parse(presente.reference_links || "[]");
         links = Array.isArray(parsed)
           ? parsed.filter((l) => typeof l === "string" && l.startsWith("http"))
           : [];
-      } catch (_) {
-        links = [];
-      }
+      } catch (_) { links = []; }
 
-      const linksHTML =
-        links.length > 0
-          ? `<div class="gift-links">
-               ${links
-                 .map(
-                   (url, i) =>
-                     `<a class="gift-link-btn" href="${url}" target="_blank" rel="noopener noreferrer">
-                        Ver sugestão de produto${links.length > 1 ? ` ${i + 1}` : ""} 🔗
-                      </a>`
-                 )
-                 .join("")}
-             </div>`
-          : "";
+      const linksHTML = links.length > 0
+        ? `<div class="gift-links">
+             ${links.map((url, i) =>
+               `<a class="gift-link-btn" href="${url}" target="_blank" rel="noopener noreferrer">
+                  Ver sugest\u00e3o de produto${links.length > 1 ? ` ${i + 1}` : ""} \U0001f517
+                </a>`
+             ).join("")}
+           </div>`
+        : "";
 
       const div = document.createElement("div");
       div.className = `gift ${isDisponivel ? "" : "gift--reserved"}`;
@@ -162,96 +347,59 @@ async function carregarPresentes() {
       div.innerHTML = `
         <div class="gift-top">
           <h4 class="gift-name">${presente.name}</h4>
-          ${
-            presente.price_range
-              ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de preço:</span> ${presente.price_range}</span>`
-              : ""
-          }
+          ${presente.price_range
+            ? `<span class="gift-price-pill"><span class="gift-price-label">Faixa de pre\u00e7o:</span> ${presente.price_range}</span>`
+            : ""}
         </div>
-
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
-
         ${linksHTML}
-
-        <p class="gift-status">
-          <strong>Disponível:</strong>
-          ${disponiveis} de ${total}
-        </p>
-
-        ${
-          !isDisponivel
-            ? `<p class="gift-note">Obrigado! Este item já foi reservado 🤍</p>`
-            : ""
-        }
-
-        ${
-          disponiveis > 0
-            ? `<button class="reserve-btn"
-                 onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
-                 Selecionar presente
-               </button>`
-            : `<p class="gift-note">Todas as unidades já foram reservadas 🤍</p>`
-        }
+        <p class="gift-status"><strong>Dispon\u00edvel:</strong> ${disponiveis} de ${total}</p>
+        ${!isDisponivel ? `<p class="gift-note">Obrigado! Este item j\u00e1 foi reservado \U0001f90d</p>` : ""}
+        ${disponiveis > 0
+          ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
+               Selecionar presente
+             </button>`
+          : `<p class="gift-note">Todas as unidades j\u00e1 foram reservadas \U0001f90d</p>`}
       `;
 
       lista.appendChild(div);
     });
+
   } catch (e) {
     console.error(e);
     lista.innerHTML = `<p style="color:#b91c1c;">Falha ao carregar lista (ver Console).</p>`;
   }
 }
 
-// ---------- MODAL ----------
+// ============================================================
+// MODAL DE PRESENTE
+// ============================================================
 async function abrirFormulario(id, nome) {
   giftSelecionado = id;
 
   const title = document.getElementById("modal-title");
-  if (title) {
-    title.innerText = `Você irá nos presentear com um(a): ${nome}`;
-  }
+  if (title) title.innerText = `Voc\u00ea ir\u00e1 nos presentear com um(a): ${nome}`;
 
   try {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/gifts?id=eq.${id}&select=quantity_total,quantity_reserved`,
-      {
-        headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-        },
-      }
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
     );
+    if (!response.ok) throw new Error();
 
-    if (!response.ok) throw new Error("Falha ao buscar quantidade do presente");
-
-    const data = await response.json();
-    const gift = data[0];
-
-    const total = gift.quantity_total ?? 1;
+    const data  = await response.json();
+    const gift  = data[0];
+    const total      = gift.quantity_total    ?? 1;
     const reservadas = gift.quantity_reserved ?? 0;
     const disponiveis = total - reservadas;
 
     const quantidadeInput = document.getElementById("quantidade");
-    if (quantidadeInput) {
-      quantidadeInput.max = disponiveis;
-      quantidadeInput.value = 1;
-    }
+    if (quantidadeInput) { quantidadeInput.max = disponiveis; quantidadeInput.value = 1; }
 
-    // ------------------------------------------------------------------
-    // MELHORIA 2: Ocultar campo de quantidade quando total = 1
-    // Se o presente tem apenas 1 unidade no total, não faz sentido
-    // perguntar "quantos você quer". Ocultamos o input inteiro.
-    // O wrapper .quantidade-wrapper agrupa label + input para facilitar
-    // mostrar/ocultar com uma única propriedade CSS.
-    // ------------------------------------------------------------------
     const quantidadeWrapper = document.getElementById("quantidade-wrapper");
-    if (quantidadeWrapper) {
-      quantidadeWrapper.style.display = total <= 1 ? "none" : "block";
-    }
+    if (quantidadeWrapper) quantidadeWrapper.style.display = total <= 1 ? "none" : "block";
 
-  } catch (e) {
-    console.warn("Não foi possível carregar a quantidade disponível:", e);
-  }
+  } catch (e) { console.warn("N\u00e3o foi poss\u00edvel carregar quantidade:", e); }
 
   const overlay = document.getElementById("modal-overlay");
   if (overlay) overlay.style.display = "flex";
@@ -262,67 +410,25 @@ function fecharModal() {
   if (overlay) overlay.style.display = "none";
 }
 
-// ✅ FIX 2: Fechar modal ao clicar fora do conteúdo
-/*
-  O overlay (#modal-overlay) ocupa a tela inteira.
-  O conteúdo real (.modal-content) fica centralizado dentro dele.
-
-  Quando o usuário clica no overlay, o evento dispara nele — mas
-  se clicar dentro do .modal-content, o evento "borbulha" (bubble)
-  até o overlay também.
-
-  A verificação `event.target === overlay` distingue os dois casos:
-  - Clicou no fundo escuro (target É o overlay)  → fecha
-  - Clicou dentro do card branco (target É outro elemento) → ignora
-*/
-document.addEventListener("DOMContentLoaded", () => {
-  const overlay = document.getElementById("modal-overlay");
-  if (overlay) {
-    overlay.addEventListener("click", (event) => {
-      if (event.target === overlay) {
-        fecharModal();
-      }
-    });
-  }
-
-  carregarPresentes();
-});
-
-// expõe para os onclick inline funcionarem
 window.abrirFormulario = abrirFormulario;
-window.fecharModal = fecharModal;
+window.fecharModal     = fecharModal;
 
-// ---------- CONFIRMAR RESERVA ----------
+// ============================================================
+// CONFIRMAR RESERVA DE PRESENTE
+// ============================================================
 async function confirmarReserva() {
-  const nome = (document.getElementById("nome")?.value || "").trim();
-  const email = (document.getElementById("email")?.value || "").trim();
-  const mensagem = (document.getElementById("mensagem")?.value || "").trim();
-  const quantidade = parseInt(
-    document.getElementById("quantidade")?.value || "1",
-    10
-  );
+  const nome      = (document.getElementById("nome")?.value    || "").trim();
+  const email     = (document.getElementById("email")?.value   || "").trim();
+  const mensagem  = (document.getElementById("mensagem")?.value || "").trim();
+  const quantidade = parseInt(document.getElementById("quantidade")?.value || "1", 10);
 
-  // ✅ FIX 3: showToast() no lugar de alert() em todas as validações
-  if (!quantidade || quantidade < 1) {
-    return showToast("Informe uma quantidade válida.", "error");
-  }
-  if (!giftSelecionado) return showToast("Nenhum presente selecionado.", "error");
-  if (nome.length < 2) return showToast("Por favor, informe seu nome.", "error");
-  if (!email.includes("@")) return showToast("Por favor, informe um e-mail válido.", "error");
+  if (!quantidade || quantidade < 1) return showToast("Informe uma quantidade v\u00e1lida.", "error");
+  if (!giftSelecionado)              return showToast("Nenhum presente selecionado.", "error");
+  if (nome.length < 2)               return showToast("Por favor, informe seu nome.", "error");
+  if (!email.includes("@"))          return showToast("Por favor, informe um e-mail v\u00e1lido.", "error");
 
-  // ------------------------------------------------------------------
-  // MELHORIA 3: Loading state no botão Confirmar
-  // Enquanto o fetch estiver em andamento:
-  //   - O botão é desabilitado (evita cliques duplos e reservas duplicadas)
-  //   - O texto muda para "Aguarde..." como feedback visual
-  // O bloco finally garante que o botão sempre volta ao estado normal,
-  // mesmo se ocorrer um erro inesperado.
-  // ------------------------------------------------------------------
   const confirmBtn = document.querySelector(".confirm-btn");
-  if (confirmBtn) {
-    confirmBtn.disabled = true;
-    confirmBtn.textContent = "Aguarde...";
-  }
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = "Aguarde..."; }
 
   try {
     const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/reserve_gift`, {
@@ -334,27 +440,22 @@ async function confirmarReserva() {
       },
       body: JSON.stringify({
         p_gift_id: giftSelecionado,
-        p_name: nome,
-        p_email: email,
+        p_name:    nome,
+        p_email:   email,
         p_message: mensagem || null,
         p_quantity: quantidade
       })
     });
 
     if (!resp.ok) {
-      let errorMessage = "Não foi possível realizar a reserva.";
-
+      let errorMessage = "N\u00e3o foi poss\u00edvel realizar a reserva.";
       try {
         const errText = await resp.text();
-        if (errText.includes("Quantidade solicitada maior que o disponível")) {
-          errorMessage = "A quantidade escolhida é maior do que a disponível 🤍 Escolha uma quantidade menor.";
-        } else if (errText.includes("Presente já está totalmente reservado")) {
-          errorMessage = "Este presente já foi totalmente reservado 🤍";
-        }
-      } catch (_) {
-        // fallback silencioso
-      }
-
+        if (errText.includes("Quantidade solicitada maior que o dispon\u00edvel"))
+          errorMessage = "A quantidade escolhida \u00e9 maior do que a dispon\u00edvel \U0001f90d Escolha uma quantidade menor.";
+        else if (errText.includes("Presente j\u00e1 est\u00e1 totalmente reservado"))
+          errorMessage = "Este presente j\u00e1 foi totalmente reservado \U0001f90d";
+      } catch (_) {}
       showToast(errorMessage, "error");
       return;
     }
@@ -362,12 +463,11 @@ async function confirmarReserva() {
     const reservationId = await parseRpcReturn(resp);
 
     fecharModal();
-    document.getElementById("nome").value = "";
-    document.getElementById("email").value = "";
+    document.getElementById("nome").value     = "";
+    document.getElementById("email").value    = "";
     document.getElementById("mensagem").value = "";
 
-    // ✅ FIX 3: toast de sucesso no lugar do alert()
-    showToast("Reserva registrada! 💚 Obrigado pelo carinho!", "success");
+    showToast("Reserva registrada! \U0001f49a Obrigado pelo carinho!", "success");
     carregarPresentes();
 
     if (reservationId) {
@@ -381,21 +481,34 @@ async function confirmarReserva() {
           },
           body: JSON.stringify({ reservation_id: reservationId })
         });
-      } catch (e) {
-        console.warn("Falha ao enviar e-mail:", e);
-      }
+      } catch (e) { console.warn("Falha ao enviar e-mail:", e); }
     }
 
   } catch (e) {
     console.error(e);
     showToast("Erro ao reservar. Tente novamente em instantes.", "error");
   } finally {
-    // Sempre restaura o botão, independente de sucesso ou erro
-    if (confirmBtn) {
-      confirmBtn.disabled = false;
-      confirmBtn.textContent = "Confirmar";
-    }
+    if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = "Confirmar"; }
   }
 }
 
 window.confirmarReserva = confirmarReserva;
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  // Fecha modal de presente ao clicar fora
+  const overlay = document.getElementById("modal-overlay");
+  if (overlay) {
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) fecharModal(); });
+  }
+
+  // Fecha modal de presença ao clicar fora
+  const rsvpOverlay = document.getElementById("rsvp-modal-overlay");
+  if (rsvpOverlay) {
+    rsvpOverlay.addEventListener("click", (e) => { if (e.target === rsvpOverlay) fecharModalRsvp(); });
+  }
+
+  carregarPresentes();
+});
