@@ -91,6 +91,33 @@
     .badge-green { background: #eef2eb; color: #1f3d2b; border: 1px solid #dbe4d8; }
     .badge-gray  { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
     .loading { text-align: center; padding: 40px; color: #6b7280; }
+
+    /* BOTÃO REMOVER */
+    .remove-btn {
+      padding: 4px 10px; background: #fff0f0; border: 1px solid #fca5a5;
+      border-radius: 6px; font-size: 12px; color: #b91c1c; cursor: pointer;
+      margin-top: 4px; display: inline-block;
+    }
+    .remove-btn:hover { background: #fee2e2; }
+
+    /* MODAL DE CONFIRMAÇÃO */
+    .confirm-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+      display: none; align-items: center; justify-content: center; z-index: 999;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: #fff; border-radius: 14px; padding: 28px 24px;
+      max-width: 380px; width: 100%; text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    .confirm-box h3 { color: #1f2937; margin-bottom: 8px; font-size: 17px; }
+    .confirm-box p  { color: #6b7280; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+    .confirm-actions { display: flex; gap: 10px; justify-content: center; }
+    .btn-cancelar { padding: 10px 20px; background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; cursor: pointer; }
+    .btn-confirmar { padding: 10px 20px; background: #b91c1c; color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-confirmar:hover { background: #991b1b; }
+    .btn-confirmar:disabled { background: #9ca3af; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -165,12 +192,25 @@
             <th>Total</th>
             <th>Reservado</th>
             <th>Reservado por</th>
+            <th>A&ccedil;&otilde;es</th>
           </tr>
         </thead>
         <tbody id="body-presentes">
           <tr><td colspan="4" class="loading">Carregando...</td></tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação de remoção -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <h3>&#x1F5D1;&#xFE0F; Remover reserva</h3>
+      <p id="confirm-msg">Tem certeza que deseja remover esta reserva? O estoque ser&aacute; devolvido automaticamente.</p>
+      <div class="confirm-actions">
+        <button class="btn-cancelar" onclick="fecharConfirm()">Cancelar</button>
+        <button class="btn-confirmar" id="btn-confirmar-remove" onclick="executarRemocao()">Sim, remover</button>
+      </div>
     </div>
   </div>
 
@@ -183,7 +223,7 @@
       Para gerar outro hash: https://emn178.github.io/online-tools/sha256.html
       Senha atual: apt609admin
     */
-    const SENHA_HASH = "46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5";
+    const SENHA_HASH = "fcfa24e4b027969b34d0c4d6e9d37f76d39291f8c0e0cda829888abf4d86ec93";
 
     async function hashSenha(senha) {
       const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(senha));
@@ -260,7 +300,7 @@
       const [giftsResp, resResp] = await Promise.all([
         fetch(`${SUPABASE_URL}/rest/v1/gifts?select=*&order=price_order.asc.nullslast`,
           { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }),
-        fetch(`${SUPABASE_URL}/rest/v1/reservations?select=gift_id,reserved_by_name,reserved_by_email,quantity,created_at&order=created_at.asc`,
+        fetch(`${SUPABASE_URL}/rest/v1/reservations?select=id,gift_id,reserved_by_name,reserved_by_email,quantity,created_at&order=created_at.asc`,
           { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
       ]);
 
@@ -282,11 +322,18 @@
       tbody.innerHTML = gifts.map(g => {
         const rs = reservasPorGift[g.id] || [];
         const nomes = rs.map(r =>
-          `<div style="font-size:13px;margin-bottom:2px;">
+          `<div style="font-size:13px;margin-bottom:4px;">
              <strong>${r.reserved_by_name}</strong>
              <span style="color:#6b7280;">(${r.reserved_by_email}) &times;${r.quantity}</span>
            </div>`
         ).join("") || '<span style="color:#9ca3af;font-size:13px;">Nenhuma reserva</span>';
+
+        // Botões de remover — um por reserva
+        const botoesRemover = rs.map(r =>
+          `<button class="remove-btn" onclick="abrirConfirm('${r.id}', '${r.reserved_by_name.replace(/'/g, "\\'")}', '${g.name.replace(/'/g, "\\'")}')">
+             &#x1F5D1; Remover reserva de ${r.reserved_by_name}
+           </button>`
+        ).join("");
 
         return `
           <tr>
@@ -298,9 +345,70 @@
               </span>
             </td>
             <td>${nomes}</td>
+            <td>${botoesRemover || '<span style="color:#9ca3af;font-size:13px;">—</span>'}</td>
           </tr>
         `;
       }).join("");
+    }
+
+    // ============================================================
+    // REMOÇÃO DE RESERVA
+    // ============================================================
+    let reservaParaRemover = null;
+
+    /*
+      abrirConfirm(): armazena o ID da reserva e abre o modal
+      de confirmação antes de executar a remoção.
+      Pedimos confirmação explícita para evitar remoções acidentais.
+    */
+    function abrirConfirm(reservationId, nomeReservante, nomePresente) {
+      reservaParaRemover = reservationId;
+      const msg = document.getElementById("confirm-msg");
+      if (msg) msg.textContent = `Remover a reserva de "${nomeReservante}" para "${nomePresente}"? O estoque será devolvido automaticamente.`;
+      document.getElementById("confirm-overlay").classList.add("open");
+    }
+
+    function fecharConfirm() {
+      reservaParaRemover = null;
+      document.getElementById("confirm-overlay").classList.remove("open");
+    }
+
+    /*
+      executarRemocao(): chama o RPC cancel_reservation no Supabase.
+      O RPC faz o DELETE + UPDATE do estoque numa única transação.
+      Após sucesso, recarrega os dados do painel.
+    */
+    async function executarRemocao() {
+      if (!reservaParaRemover) return;
+
+      const btn = document.getElementById("btn-confirmar-remove");
+      if (btn) { btn.disabled = true; btn.textContent = "Removendo..."; }
+
+      try {
+        const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/cancel_reservation`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`
+          },
+          body: JSON.stringify({ p_reservation_id: reservaParaRemover })
+        });
+
+        if (!resp.ok) {
+          const err = await resp.text();
+          alert("Erro ao remover: " + err);
+          return;
+        }
+
+        fecharConfirm();
+        await carregarPresentes(); // atualiza a tabela e os stats
+
+      } catch (e) {
+        alert("Erro inesperado: " + e.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = "Sim, remover"; }
+      }
     }
 
     // Verifica se já está autenticado na sessão atual
