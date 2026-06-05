@@ -853,3 +853,77 @@ body::after {
   border-radius: 999px;
   white-space: nowrap;
 }
+
+/* ============================================================
+   CONTAGEM REGRESSIVA
+   ============================================================ */
+.countdown-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 8px;
+  flex-wrap: wrap;
+}
+
+.countdown-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #1f3d2b;
+  border-radius: 10px;
+  padding: 10px 16px;
+  min-width: 56px;
+}
+
+.countdown-num {
+  font-size: 28px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  font-family: Georgia, serif;
+  letter-spacing: 1px;
+}
+
+.countdown-label {
+  font-size: 11px;
+  color: #a8c4b0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.countdown-sep {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f3d2b;
+  align-self: flex-start;
+  margin-top: 10px;
+}
+
+.countdown-hint {
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  color: #6b7280;
+  margin: 0 0 16px;
+  display: none;
+}
+
+/* ============================================================
+   HONEYPOT ANTI-SPAM
+   Visualmente oculto mas presente no DOM.
+   display:none seria ignorado por alguns bots; a combinação
+   de position:absolute + opacity:0 + pointer-events:none
+   é mais eficaz porque mantém o campo acessível para bots
+   mas invisível para humanos.
+   ============================================================ */
+#hp-field {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  pointer-events: none;
+  tabindex: -1;
+  height: 0;
+  width: 0;
+}
