@@ -824,3 +824,32 @@ body::after {
   cursor: not-allowed;
   opacity: 0.75;
 }
+
+/* ============================================================
+   NOMES DOS RESERVANTES NO CARD DE PRESENTE ESGOTADO
+   ============================================================ */
+
+/* Variante da gift-note para quando tem nomes */
+.gift-note--reserved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-style: normal;
+}
+
+/*
+  Cada nome aparece como uma pequena pill/badge,
+  no mesmo tom verde suave do site.
+*/
+.gift-reserver-name {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1f3d2b;
+  background: #eef2eb;
+  border: 1px solid #dbe4d8;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
