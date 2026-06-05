@@ -495,6 +495,15 @@ async function confirmarReserva() {
   if (nome.length < 2)               return showToast("Por favor, informe seu nome.", "error");
   if (!email.includes("@"))          return showToast("Por favor, informe um e-mail válido.", "error");
 
+  // Honeypot anti-spam: se este campo estiver preenchido, é um bot
+  const honeypot = (document.getElementById("hp-field")?.value || "");
+  if (honeypot) {
+    // Bot detectado — simula sucesso sem fazer nada
+    fecharModal();
+    showToast("Reserva registrada! \U0001F49A Obrigado pelo carinho!", "success");
+    return;
+  }
+
   const confirmBtn = document.querySelector(".confirm-btn");
   if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = "Aguarde..."; }
 
@@ -562,6 +571,72 @@ async function confirmarReserva() {
 
 window.confirmarReserva = confirmarReserva;
 
+
+// ============================================================
+// CONTAGEM REGRESSIVA
+// ============================================================
+/*
+  Calcula a diferença entre agora e a data do evento.
+  setInterval atualiza a cada 1 segundo.
+  Quando chegar ao dia, exibe mensagem especial.
+
+  Por que "T13:00:00-03:00"?
+  Fixamos o horário do evento (13h) com timezone de Brasília
+  (-03:00) para a contagem ser precisa independente do fuso
+  do dispositivo do convidado.
+*/
+function iniciarContagem() {
+  const evento = new Date("2026-10-03T13:00:00-03:00");
+
+  function atualizar() {
+    const agora = new Date();
+    const diff  = evento - agora;
+
+    const hint    = document.getElementById("countdown-hint");
+    const wrapper = document.getElementById("countdown-wrapper");
+
+    if (diff <= 0) {
+      // Evento chegou!
+      if (wrapper) wrapper.style.display = "none";
+      if (hint) {
+        hint.textContent = "\u2728 O grande dia chegou! Nos vemos l\u00e1! \u2728";
+        hint.style.display = "block";
+      }
+      clearInterval(timer);
+      return;
+    }
+
+    const dias  = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const horas = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const min   = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seg   = Math.floor((diff % (1000 * 60)) / 1000);
+
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const elDias  = document.getElementById("cd-dias");
+    const elHoras = document.getElementById("cd-horas");
+    const elMin   = document.getElementById("cd-min");
+    const elSeg   = document.getElementById("cd-seg");
+
+    if (elDias)  elDias.textContent  = pad(dias);
+    if (elHoras) elHoras.textContent = pad(horas);
+    if (elMin)   elMin.textContent   = pad(min);
+    if (elSeg)   elSeg.textContent   = pad(seg);
+
+    if (hint) {
+      hint.textContent = dias === 0
+        ? "\u2728 Hoje \u00e9 o dia! At\u00e9 logo!"
+        : dias === 1
+          ? "Falta apenas 1 dia!"
+          : `Faltam ${dias} dias para o nosso ch\u00e1 \u2728`;
+      hint.style.display = "block";
+    }
+  }
+
+  atualizar();
+  const timer = setInterval(atualizar, 1000);
+}
+
 // ============================================================
 // INIT
 // ============================================================
@@ -579,4 +654,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   carregarPresentes();
+  iniciarContagem();
 });
