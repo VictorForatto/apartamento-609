@@ -592,7 +592,6 @@ function iniciarContagem() {
     const agora = new Date();
     const diff  = evento - agora;
 
-    const hint    = document.getElementById("countdown-hint");
     const wrapper = document.getElementById("countdown-wrapper");
 
     if (diff <= 0) {
@@ -623,14 +622,7 @@ function iniciarContagem() {
     if (elMin)   elMin.textContent   = pad(min);
     if (elSeg)   elSeg.textContent   = pad(seg);
 
-    if (hint) {
-      hint.textContent = dias === 0
-        ? "\u2728 Hoje \u00e9 o dia! At\u00e9 logo!"
-        : dias === 1
-          ? "Falta apenas 1 dia!"
-          : `Faltam ${dias} dias para o nosso ch\u00e1 \u2728`;
-      hint.style.display = "block";
-    }
+
   }
 
   atualizar();
