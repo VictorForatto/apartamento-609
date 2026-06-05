@@ -31,6 +31,18 @@
       </ul>
       <p class="event-note">Esperamos voc&ecirc;s para celebrar esse novo cap&iacute;tulo com a gente &#x1F49A;</p>
 
+      <!-- Contagem regressiva -->
+      <div class="countdown-wrapper" id="countdown-wrapper">
+        <div class="countdown-block"><span class="countdown-num" id="cd-dias">--</span><span class="countdown-label">dias</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block"><span class="countdown-num" id="cd-horas">--</span><span class="countdown-label">horas</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block"><span class="countdown-num" id="cd-min">--</span><span class="countdown-label">min</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-block"><span class="countdown-num" id="cd-seg">--</span><span class="countdown-label">seg</span></div>
+      </div>
+      <p class="countdown-hint" id="countdown-hint"></p>
+
       <div class="rsvp-accordion">
         <button class="rsvp-accordion-btn" onclick="toggleListaConvidados()" id="rsvp-accordion-btn">
           &#x1F49A; Confirmar presen&ccedil;a
@@ -51,7 +63,7 @@
 
     <section class="gifts-intro">
       <h3 class="gifts-intro-title">&#x1F381; Lista de presentes</h3>
-      <p>Preparamos uma lista com itens que v&atilde;o nos ajudar a montar o nosso novo lar. Mas antes de tudo, queremos explicar como isso funciona:</p>
+      <p>Preparamos uma lista com itens que v&atilde;o nos ajudar a montar o nosso novo lar. Mas antes de tudo, queremos ser bem transparentes sobre como isso funciona:</p>
       <p><strong>Este site n&atilde;o realiza nenhuma transa&ccedil;&atilde;o financeira.</strong> N&atilde;o h&aacute; pagamento, carrinho ou checkout aqui.</p>
       <p>O passo a passo &eacute; bem simples:</p>
       <ol class="gifts-intro-steps">
@@ -60,6 +72,7 @@
         <li>No seu e-mail voc&ecirc; receber&aacute; as refer&ecirc;ncias que pensamos, os valores estimados e as formas de nos presentear</li>
         <li>Pronto! N&atilde;o tem segredo &#x1F49A;</li>
       </ol>
+      <p class="gifts-intro-note">Cada item mostra quantas unidades ainda est&atilde;o dispon&iacute;veis &mdash; assim evitamos duplicatas e garantimos que todos que queiram presentear consigam.</p>
     </section>
 
     <div id="lista-presentes"></div>
@@ -75,6 +88,8 @@
         <input id="quantidade" type="number" min="1" value="1" placeholder="Quantidade" />
       </div>
       <textarea id="mensagem" placeholder="Mensagem para o casal (opcional)"></textarea>
+      <!-- Honeypot anti-spam: oculto via CSS, nunca deve ser preenchido por humanos -->
+      <input id="hp-field" name="website" type="text" tabindex="-1" autocomplete="off" />
       <div class="modal-actions">
         <button class="confirm-btn" onclick="confirmarReserva()">Confirmar</button>
         <button class="cancel-btn" onclick="fecharModal()">Cancelar</button>
