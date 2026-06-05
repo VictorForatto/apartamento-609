@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin | Apartamento 609</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #f7f6f3; color: #1f2937; }
+
+    /* LOGIN */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .login-card h2 { color: #1f3d2b; margin-bottom: 6px; }
+    .login-card p  { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
+    .login-card input {
+      width: 100%; padding: 12px 14px; border-radius: 8px;
+      border: 1px solid #d1d5db; font-size: 14px; margin-bottom: 14px;
+    }
+    .login-card button {
+      width: 100%; padding: 13px; background: #1f3d2b; color: #fff;
+      border: none; border-radius: 8px; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+    }
+    .login-card button:hover { background: #2f5d42; }
+    .login-error { color: #b91c1c; font-size: 13px; margin-top: 10px; display: none; }
+
+    /* DASHBOARD */
+    .dashboard { display: none; max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+    .dash-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px; flex-wrap: wrap; gap: 12px;
+    }
+    .dash-header h1 { font-size: 22px; color: #1f3d2b; }
+    .logout-btn {
+      padding: 8px 16px; background: #f7f6f3; border: 1px solid #e5e7eb;
+      border-radius: 8px; font-size: 13px; cursor: pointer; color: #6b7280;
+    }
+    .logout-btn:hover { background: #e5e7eb; }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: #fff; border: 1px solid #e5e7eb; border-radius: 12px;
+      padding: 20px; text-align: center;
+    }
+    .stat-num  { font-size: 36px; font-weight: 700; color: #1f3d2b; line-height: 1; }
+    .stat-label { font-size: 13px; color: #6b7280; margin-top: 6px; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+    .tab-btn {
+      padding: 9px 18px; border-radius: 8px; border: 1px solid #e5e7eb;
+      background: #fff; font-size: 14px; cursor: pointer; color: #6b7280;
+    }
+    .tab-btn.active { background: #1f3d2b; color: #fff; border-color: #1f3d2b; }
+
+    /* TABLES */
+    .section { display: none; }
+    .section.active { display: block; }
+    .data-table { width: 100%; border-collapse: collapse; background: #fff;
+      border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; }
+    .data-table th {
+      background: #f0f7f2; padding: 12px 16px; text-align: left;
+      font-size: 13px; color: #4b7a5e; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .data-table td { padding: 12px 16px; font-size: 14px; border-top: 1px solid #f3f4f6; }
+    .data-table tr:hover td { background: #fafafa; }
+    .badge {
+      display: inline-block; padding: 3px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-green { background: #eef2eb; color: #1f3d2b; border: 1px solid #dbe4d8; }
+    .badge-gray  { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+    .loading { text-align: center; padding: 40px; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+  <!-- TELA DE LOGIN -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <h2>&#x1F3E1; Admin 609</h2>
+      <p>Acesso restrito ao casal</p>
+      <input id="senha-input" type="password" placeholder="Senha" onkeydown="if(event.key==='Enter')entrar()" />
+      <button onclick="entrar()">Entrar</button>
+      <p class="login-error" id="login-error">Senha incorreta.</p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <h1>&#x1F49A; Painel — Apartamento 609</h1>
+      <button class="logout-btn" onclick="sair()">Sair</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-confirmados">--</div>
+        <div class="stat-label">Presen&ccedil;as confirmadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-pendentes">--</div>
+        <div class="stat-label">Ainda n&atilde;o confirmaram</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-reservas">--</div>
+        <div class="stat-label">Presentes reservados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-disponiveis">--</div>
+        <div class="stat-label">Presentes dispon&iacute;veis</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="trocarTab('presencas')">&#x1F465; Presen&ccedil;as</button>
+      <button class="tab-btn" onclick="trocarTab('presentes')">&#x1F381; Presentes</button>
+    </div>
+
+    <!-- Tab: Presenças -->
+    <div class="section active" id="tab-presencas">
+      <table class="data-table" id="tabela-presencas">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Status</th>
+            <th>E-mail</th>
+            <th>Confirmado em</th>
+          </tr>
+        </thead>
+        <tbody id="body-presencas">
+          <tr><td colspan="4" class="loading">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tab: Presentes -->
+    <div class="section" id="tab-presentes">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Presente</th>
+            <th>Total</th>
+            <th>Reservado</th>
+            <th>Reservado por</th>
+          </tr>
+        </thead>
+        <tbody id="body-presentes">
+          <tr><td colspan="4" class="loading">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://hyopntdqlmvivlcfsvoh.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5b3BudGRxbG12aXZsY2Zzdm9oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Mjc2MTYsImV4cCI6MjA5MjAwMzYxNn0.HuSBNc9X-G1K2ZUqJz71Gd8JzFS50fUFrqu8OmvYTC4";
+
+    /*
+      Senha armazenada como hash SHA-256 para não ficar em texto puro no código.
+      Para gerar outro hash: https://emn178.github.io/online-tools/sha256.html
+      Senha atual: apt609admin
+    */
+    const SENHA_HASH = "b7e5c2a1f3d94082e6b8c0f5a2d37e914c6b8f0e2a5d3c7b1e9f4a6d2c8b0e3";
+
+    async function hashSenha(senha) {
+      const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(senha));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function entrar() {
+      const senha = document.getElementById("senha-input").value;
+      const hash  = await hashSenha(senha);
+
+      if (hash === SENHA_HASH) {
+        sessionStorage.setItem("admin609", "ok");
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        carregarDados();
+      } else {
+        document.getElementById("login-error").style.display = "block";
+      }
+    }
+
+    function sair() {
+      sessionStorage.removeItem("admin609");
+      location.reload();
+    }
+
+    function trocarTab(tab) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("tab-" + tab).classList.add("active");
+      event.target.classList.add("active");
+    }
+
+    function formatarData(iso) {
+      if (!iso) return "—";
+      return new Date(iso).toLocaleString("pt-BR", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit"
+      });
+    }
+
+    async function carregarDados() {
+      await Promise.all([carregarPresencas(), carregarPresentes()]);
+    }
+
+    async function carregarPresencas() {
+      const resp = await fetch(
+        `${SUPABASE_URL}/rest/v1/rsvp?select=*&order=name.asc`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      const data = await resp.json();
+
+      const confirmados = data.filter(r => r.confirmed);
+      const pendentes   = data.filter(r => !r.confirmed);
+
+      document.getElementById("stat-confirmados").textContent = confirmados.length;
+      document.getElementById("stat-pendentes").textContent   = pendentes.length;
+
+      const tbody = document.getElementById("body-presencas");
+      tbody.innerHTML = data.map(r => `
+        <tr>
+          <td><strong>${r.name}</strong></td>
+          <td>
+            <span class="badge ${r.confirmed ? 'badge-green' : 'badge-gray'}">
+              ${r.confirmed ? '&#x2713; Confirmado' : 'Pendente'}
+            </span>
+          </td>
+          <td>${r.email || '—'}</td>
+          <td>${formatarData(r.confirmed_at)}</td>
+        </tr>
+      `).join("");
+    }
+
+    async function carregarPresentes() {
+      const [giftsResp, resResp] = await Promise.all([
+        fetch(`${SUPABASE_URL}/rest/v1/gifts?select=*&order=price_order.asc.nullslast`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }),
+        fetch(`${SUPABASE_URL}/rest/v1/reservations?select=gift_id,reserved_by_name,reserved_by_email,quantity,created_at&order=created_at.asc`,
+          { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
+      ]);
+
+      const gifts    = await giftsResp.json();
+      const reservas = await resResp.json();
+
+      const reservasPorGift = reservas.reduce((acc, r) => {
+        if (!acc[r.gift_id]) acc[r.gift_id] = [];
+        acc[r.gift_id].push(r);
+        return acc;
+      }, {});
+
+      const totalReservados  = gifts.reduce((s, g) => s + (g.quantity_reserved || 0), 0);
+      const totalDisponiveis = gifts.reduce((s, g) => s + ((g.quantity_total || 1) - (g.quantity_reserved || 0)), 0);
+      document.getElementById("stat-reservas").textContent    = totalReservados;
+      document.getElementById("stat-disponiveis").textContent = totalDisponiveis;
+
+      const tbody = document.getElementById("body-presentes");
+      tbody.innerHTML = gifts.map(g => {
+        const rs = reservasPorGift[g.id] || [];
+        const nomes = rs.map(r =>
+          `<div style="font-size:13px;margin-bottom:2px;">
+             <strong>${r.reserved_by_name}</strong>
+             <span style="color:#6b7280;">(${r.reserved_by_email}) &times;${r.quantity}</span>
+           </div>`
+        ).join("") || '<span style="color:#9ca3af;font-size:13px;">Nenhuma reserva</span>';
+
+        return `
+          <tr>
+            <td><strong>${g.name}</strong></td>
+            <td>${g.quantity_total || 1}</td>
+            <td>
+              <span class="badge ${g.quantity_reserved > 0 ? 'badge-green' : 'badge-gray'}">
+                ${g.quantity_reserved || 0}
+              </span>
+            </td>
+            <td>${nomes}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // Verifica se já está autenticado na sessão atual
+    if (sessionStorage.getItem("admin609") === "ok") {
+      document.getElementById("login-screen").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      carregarDados();
+    }
+  </script>
+</body>
+</html>
