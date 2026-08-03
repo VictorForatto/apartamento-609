@@ -586,7 +586,7 @@ window.confirmarReserva = confirmarReserva;
   do dispositivo do convidado.
 */
 function iniciarContagem() {
-  const evento = new Date("2026-10-03T13:00:00-03:00");
+  const evento = new Date("2026-09-05T13:00:00-03:00");
 
   function atualizar() {
     const agora = new Date();
