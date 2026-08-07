@@ -321,25 +321,6 @@ async function carregarPresentes() {
 
     // Busca todas as reservas para exibir quem reservou cada item
     // Fazemos uma segunda requisição paralela para não atrasar a lista
-    let todasReservas = [];
-    try {
-      const resReservas = await fetch(
-        `${SUPABASE_URL}/rest/v1/reservations?select=gift_id,reserved_by_name,quantity&order=created_at.asc`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (resReservas.ok) todasReservas = await resReservas.json();
-    } catch (_) { /* falha silenciosa — não impede a lista de carregar */ }
-
-    // Agrupa as reservas por gift_id para acesso rápido no forEach
-    // Resultado: { "uuid-do-gift": ["Nome A", "Nome B (x2)"], ... }
-    const reservasPorGift = todasReservas.reduce((acc, r) => {
-      if (!acc[r.gift_id]) acc[r.gift_id] = [];
-      const label = r.quantity > 1
-        ? `${r.reserved_by_name} (x${r.quantity})`
-        : r.reserved_by_name;
-      acc[r.gift_id].push(label);
-      return acc;
-    }, {});
 
     const { totalGeral, reservadasGeral } = presentes.reduce(
       (acc, p) => ({
@@ -407,20 +388,6 @@ async function carregarPresentes() {
         ${presente.description ? `<p class="gift-description">${presente.description}</p>` : ""}
         ${linksHTML}
         <p class="gift-status"><strong>Disponível:</strong> ${disponiveis} de ${total}</p>
-        ${(() => {
-          // Monta o bloco de nomes dos reservantes para itens esgotados
-          // A IIFE (função auto-executada) permite lógica complexa dentro do template string
-          const nomes = reservasPorGift[presente.id] || [];
-          if (!isDisponivel && nomes.length > 0) {
-            const listaFormatada = nomes
-              .map(n => `<span class="gift-reserver-name">${n}</span>`)
-              .join("");
-            return `<p class="gift-note gift-note--reserved">
-                      Reservado por: ${listaFormatada}
-                    </p>`;
-          }
-          return "";
-        })()}
         ${disponiveis > 0
           ? `<button class="reserve-btn" onclick="abrirFormulario('${presente.id}', '${escapeApostrophe(presente.name)}')">
                Selecionar presente
