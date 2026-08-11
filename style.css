@@ -295,12 +295,12 @@ body::after {
 
 body::before {
   left: 0;
-  background-image: url("floral2.png");
+  background-image: url("floral4.png");
 }
 
 body::after {
   right: 0;
-  background-image: url("floral1.png");
+  background-image: url("floral3.png");
 }
 
 .container {
